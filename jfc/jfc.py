@@ -7,6 +7,7 @@ import appdirs
 import sys
 import sqlite3
 import halo
+import time
 import datetime
 import random
 import jfc.headers as headers
@@ -53,21 +54,23 @@ def main():
     conf_path = os.path.join(conf_dir, 'settings.toml')
     db_path = os.path.join(data_dir, 'articles.db')
 
-    if not os.path.exists(conf_path):
-        with open(conf_path, 'w') as conf_file:
-            conf_file.write(defaults.SETTINGS)
-
-    # Config. dir. output mode?
-    if len(sys.argv) > 1 and sys.argv[1].lower() == 'config':
-        print(conf_path, end='')
-        exit(0)
-
     # Config. reset mode?
     if len(sys.argv) > 1 and sys.argv[1].lower() == 'clean':
         if os.path.exists(conf_path):
             os.rename(conf_path, os.path.join(conf_dir, 'settings.toml.old'))
         if os.path.exists(db_path):
             os.rename(db_path, os.path.join(data_dir, 'articles.db.old'))
+        exit(0)
+
+    first_time = False
+    if not os.path.exists(conf_path):
+        first_time = True
+        with open(conf_path, 'w') as conf_file:
+            conf_file.write(defaults.SETTINGS)
+
+    # Config. dir. output mode?
+    if len(sys.argv) > 1 and sys.argv[1].lower() == 'config':
+        print(conf_path, end='')
         exit(0)
 
     # Read the settings
@@ -78,8 +81,12 @@ def main():
     if conf['show_header']:
         headers.print_header()
         print('')
+
+    if first_time:
+        log.warn('It seems like this is the first time running jfc. Please '
+            'give it some time to fetch articles.')
     
-    with halo.Halo(text='Warming up engines', spinner='dots') as spinner, \
+    with halo.Halo(text='Warming up engines...', spinner='dots') as spinner,\
          sqlite3.connect(db_path) as db:
         # Load the database
         cursor = db.cursor()
@@ -93,8 +100,8 @@ def main():
                          abstract TEXT NOT NULL,
                          authors TEXT NOT NULL,
                          category TEXT NOT NULL,
-                         link TEXT NOT NULL PRIMARY KEY
-                         seen BOOLEAN)''')
+                         link TEXT NOT NULL PRIMARY KEY,
+                         read BOOLEAN)''')
     
         # Prune the database of old articles
         # Prune since when?
@@ -129,8 +136,10 @@ def main():
             categories = [cat for cat in CATEGORY_KEYS
                             if conf['categories'].get(cat, False)]
             
-            for results_page in arxiv.query(categories, page_size=150):
-                spinner.text = random.choice([
+            page_size = 200
+            for i, results_page in enumerate(arxiv.query(
+                                        categories, page_size=page_size)):
+                spinner.text = (random.choice([
                     'Perusing ArXiv...',
                     'Eyeing articles...',
                     'Contacting Reviewer #2...',
@@ -138,7 +147,11 @@ def main():
                     'Contacting the corresponding author...',
                     'Commenting publication...',
                     'Skipping to the conclusions...',
-                    'Recompiling LaTeX...'])
+                    'Recompiling LaTeX...',
+                    'Calling the arXiv API... (no, really)',
+                    'Wow, this is taking a while?',
+                    'Reading the abstract only...'])
+                    + ' (' + str(i*page_size) + ')')
 
                 if results_page['bozo'] == True:
                     spinner.fail(
@@ -148,10 +161,12 @@ def main():
 
                 items_to_insert = []
 
+                finished = False
                 for entry in results_page['entries']:
                     item = {
                         'link': entry['link'],
-                        'date': datetime.date(*entry['updated_parsed'][:3]),
+                        'date': datetime.datetime(
+                            *entry['published_parsed'][:6]).date(),
                         'title': entry['title'],
                         'abstract': entry['summary'],
                         'authors': [
@@ -163,6 +178,15 @@ def main():
                     # so if we're looking at dates older than the pruning date
                     # we can abort.
                     if item['date'] < prune_since:
+                        # However, if this is an item that has appeared because
+                        # its update date is recent, we continue scanning the
+                        # list.
+                        update_date = datetime.datetime(
+                            *entry['updated_parsed'][:6]).date()
+                        if update_date >= prune_since:
+                            continue
+
+                        finished = True
                         break
                     
                     # Likewise, if the link is found in the database, then we've
@@ -175,18 +199,20 @@ def main():
                         if value != (0,):
                             seen = True
                     if seen:
+                        finished = True
                         break 
                     
                     # Otherwise, push this item into the database
                     # We can batch-execute queries/inserts into the SQL database,
                     # so we postpone this to the end of the loop.
+                    items_to_insert.append(item)
                 
                 cursor.executemany(
                     'INSERT INTO articles '
                     '(year, month, day, title, abstract, authors, category, '
-                        'link) '
+                        'link, read) '
                     'VALUES '
-                    '(?, ?, ?, ?, ?, ?, ?, ?)',
+                    '(?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [(item['date'].year,
                       item['date'].month,
                       item['date'].day,
@@ -194,5 +220,9 @@ def main():
                       item['title'],
                       ', '.join(item['authors']),
                       item['category'],
-                      item['link'])
+                      item['link'],
+                      False)
                     for item in items_to_insert])
+                
+                if finished:
+                    break

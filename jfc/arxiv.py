@@ -10,10 +10,12 @@ def query(categories, page_size=40):
 
     # Query the given categories
     request_string += '&search_query='
+    request_string += urllib.parse.quote('(')
     for category in categories[:-1]:
         request_string += 'cat:' + urllib.parse.quote(categrory)
         request_string += '+OR+'
     request_string += 'cat:' + urllib.parse.quote(categories[-1])
+    request_string += urllib.parse.quote(')')
 
     # Sort the results from newest to oldest
     request_string += '&sortBy=lastUpdatedDate&sortOrder=descending'
