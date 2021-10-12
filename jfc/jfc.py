@@ -78,7 +78,7 @@ def main():
         conf = toml.load(conf_file)
     
     # Print a header, because we're cool like that
-    if conf['show_header']:
+    if conf.get('show_header', True):
         headers.print_header()
         print('')
 
@@ -105,7 +105,7 @@ def main():
     
         # Prune the database of old articles
         # Prune since when?
-        conf_delta = conf['span']
+        conf_delta = conf.get('span', 7)
         prune_since = (today - datetime.timedelta(days=conf_delta)).date()
 
         cursor.execute('DELETE FROM articles WHERE YEAR<:year OR '
@@ -136,7 +136,7 @@ def main():
             # We're very explicit here to make sure we don't send garbage into
             #  the ArXiv query.
             categories = [cat for cat in CATEGORY_KEYS
-                            if conf['categories'].get(cat, False)]
+                            if conf.get('categories', {}).get(cat, False)]
             
             page_size = 200
             for i, results_page in enumerate(arxiv.query(
