@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import random
-import ansi
+import jfc.ansi as ansi
 
 ART = [
 '''\

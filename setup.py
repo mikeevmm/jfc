@@ -21,6 +21,7 @@ setuptools.setup(
         'Bug Tracker': 'https://github.com/mikeevmm/jfc/issues'
     },
     license='GPLv3',
+    packages=['jfc'],
     entry_points = {
         'console_scripts': [
             'jfc=jfc.jfc:main'
