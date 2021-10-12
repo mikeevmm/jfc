@@ -4,10 +4,16 @@
 
 ## Install
 
+**Consider using [`pipx`][pipx].**
+
 ```bash
-git clone git@github.com:mikeevmm/jfc.git
-cd jfc
-bash install.sh
+pipx install git@github.com:mikeevmm/jfc.git
+```
+
+Otherwise, if you are using `pip`:
+
+```bash
+pip install git@github.com:mikeevmm/jfc.git
 ```
 
 ## How to Use
@@ -36,6 +42,7 @@ this means you can quickly edit the configuration (in bash) with
 
  * `span` The timeframe of publication dates to aggregate, in days, and
     counting backwards from today. [Default: 7]
+ * `show_header` Whether to be boring (`false`) or not (`true`) [Default: true]
 
 ## Licence
 
@@ -49,5 +56,6 @@ this means you can quickly edit the configuration (in bash) with
 
 You can find a copy of the licence under `LICENCE`.
 
+[pipx]: https://github.com/pypa/pipx
 [TOML]: https://en.wikipedia.org/wiki/TOML
 [GPLv3]: https://tldrlegal.com/license/gnu-lesser-general-public-license-v2.1-(lgpl-2.1)
