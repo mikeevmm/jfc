@@ -28,7 +28,7 @@ Run `jfc` to get an interactive prompt.
 ## Configuration
 
 `jfc` has some configuration parameters, which are set in the [TOML][TOML] file
-that lives in the installation directory.
+that lives in the configuration directory (as reported by [`appdirs`][appdirs].
 
 Running `jfc config` will output the full directory of the configuration
 directory. Since most editors accept a path as an argument for the file to open,
@@ -57,5 +57,6 @@ this means you can quickly edit the configuration (in bash) with
 You can find a copy of the licence under `LICENCE`.
 
 [pipx]: https://github.com/pypa/pipx
+[appdirs]: https://pypi.org/project/appdirs/
 [TOML]: https://en.wikipedia.org/wiki/TOML
 [GPLv3]: https://tldrlegal.com/license/gnu-lesser-general-public-license-v2.1-(lgpl-2.1)
