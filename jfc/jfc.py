@@ -248,9 +248,9 @@ def main():
             for element in query]
         random.shuffle(articles)
 
-         # Initialize curses
-         stdscr=curses.initscr()
-         curses.noecho()
-         curses.cbreak()
-         stdscr.keypad(1)
+        # Initialize curses
+        stdscr=curses.initscr()
+        curses.noecho()
+        curses.cbreak()
+        stdscr.keypad(1)
 
