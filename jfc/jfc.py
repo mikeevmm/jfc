@@ -125,8 +125,10 @@ def main():
             if last_published is None or date > last_published:
                 last_published = date
         
-        # last_published == None is also covered
-        if last_published == today_date:
+        # (articles are published on yesterday's midnight; this is parsed as
+        #   yesterday)
+        if (last_published is None or 
+            last_published == today_date - datetime.timedelta(days=1)):
             # No need to poll the API again
             pass
         else:
