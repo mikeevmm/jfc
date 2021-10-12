@@ -3,6 +3,9 @@
 
 from jfc.ansi import colors
 
+def ok(msg):
+    print(colors.OKGREEN, msg, colors.ENDC, sep='')
+
 def log(msg):
     print(colors.OKBLUE, msg, colors.ENDC, sep='')
 

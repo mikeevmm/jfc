@@ -10,10 +10,12 @@ import halo
 import time
 import datetime
 import random
+import curses
 import jfc.headers as headers
 import jfc.defaults as defaults
 import jfc.arxiv as arxiv
 import jfc.log as log
+import jfc.ansi as ansi
 
 
 CATEGORY_KEYS = [
@@ -218,8 +220,8 @@ def main():
                     [(item['date'].year,
                       item['date'].month,
                       item['date'].day,
-                      item['abstract'],
                       item['title'],
+                      item['abstract'],
                       ', '.join(item['authors']),
                       item['category'],
                       item['link'],
@@ -227,4 +229,28 @@ def main():
                     for item in items_to_insert])
                 
                 if finished:
+                    spinner.succeed('Done.')
                     break
+    
+    with sqlite3.connect(db_path) as db:
+        cursor = db.cursor()
+
+        # Get all the articles that haven't been read yet
+        # The results are returned as tuples, being that the field each element
+        # of the tuple corresponds to is given by the order in which the columns
+        # of the table were declared. This is less than ideal, but follows from
+        # the integration with SQLite.
+        query = cursor.execute('SELECT * FROM articles WHERE read = false')
+        articles = [
+            {field: value for field, value in zip(
+                ('year', 'month', 'day', 'title', 'abstract', 'authors',
+                    'category', 'link', 'read'), element)}
+            for element in query]
+        random.shuffle(articles)
+
+         # Initialize curses
+         stdscr=curses.initscr()
+         curses.noecho()
+         curses.cbreak()
+         stdscr.keypad(1)
+
