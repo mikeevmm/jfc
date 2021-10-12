@@ -7,10 +7,10 @@ import appdirs
 import sys
 import sqlite3
 import halo
-import time
 import datetime
 import random
 import curses
+import webbrowser
 import jfc.headers as headers
 import jfc.defaults as defaults
 import jfc.arxiv as arxiv
@@ -171,7 +171,8 @@ def main():
                         'link': entry['link'],
                         'date': datetime.datetime(
                             *entry['published_parsed'][:6]).date(),
-                        'title': entry['title'],
+                        'title': ' '.join(line.strip()
+                            for line in entry['title'].splitlines()),
                         'abstract': entry['summary'],
                         'authors': [
                             author['name'] for author in entry['authors']],
@@ -246,25 +247,21 @@ def main():
                 ('year', 'month', 'day', 'title', 'abstract', 'authors',
                     'category', 'link', 'read'), element)}
             for element in query]
+
+        if len(articles) == 0:
+            print('You\'re all caught up!')
+            exit(0)
+
         random.shuffle(articles)
 
-        try:
-            # Initialize curses
-            stdscr=curses.initscr()
-            curses.noecho()
-            curses.cbreak()
-            stdscr.keypad(1)
-
-            # Stop curses
-            stdscr.keypad(0)
-            curses.echo()
-            curses.nocbreak()
-            curses.endwin()
-        except Exception as e:
-            # Restore from curses
-            stdscr.keypad(0)
-            curses.echo()
-            curses.nocbreak()
-            curses.endwin()
+        # Start showing articles
+        def main(stdscr):
+            stdscr.clear()
             
-            raise e
+            width = curses.COLS
+            height = curses.LINES
+
+            for article in articles:
+                pass
+        
+        curses.wrapper(main)
