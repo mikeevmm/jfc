@@ -38,6 +38,9 @@ this means you can quickly edit the configuration (in bash) with
 <your favourite editor> $(jfc config)
 ```
 
+Running `jfc clean` will clean your configuration and article database. A copy
+of the old files is kept with a `.old` extension, so that these can be recovered.
+
 ### Parameters
 
  * `span` The timeframe of publication dates to aggregate, in days, and
