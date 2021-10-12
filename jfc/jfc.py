@@ -248,9 +248,23 @@ def main():
             for element in query]
         random.shuffle(articles)
 
-        # Initialize curses
-        stdscr=curses.initscr()
-        curses.noecho()
-        curses.cbreak()
-        stdscr.keypad(1)
+        try:
+            # Initialize curses
+            stdscr=curses.initscr()
+            curses.noecho()
+            curses.cbreak()
+            stdscr.keypad(1)
 
+            # Stop curses
+            stdscr.keypad(0)
+            curses.echo()
+            curses.nocbreak()
+            curses.endwin()
+        except Exception as e:
+            # Restore from curses
+            stdscr.keypad(0)
+            curses.echo()
+            curses.nocbreak()
+            curses.endwin()
+            
+            raise e
