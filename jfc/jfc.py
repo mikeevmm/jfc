@@ -64,8 +64,11 @@ def main():
 
     # Config. reset mode?
     if len(sys.argv) > 1 and sys.argv[1].lower() == 'clean':
-        os.rename(conf_path, os.path.join(conf_dir, 'settings.toml.old')
-        os.rename(db_path, os.path.join(data_dir, 'articles.db.old')
+        if os.path.exists(conf_path):
+            os.rename(conf_path, os.path.join(conf_dir, 'settings.toml.old'))
+        if os.path.exists(db_path):
+            os.rename(db_path, os.path.join(data_dir, 'articles.db.old'))
+        exit(0)
 
     # Read the settings
     with open(conf_path, 'r') as conf_file:
