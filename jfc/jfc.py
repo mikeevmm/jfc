@@ -122,7 +122,7 @@ def main():
         query = cursor.execute('SELECT day, month, year FROM articles')
         for (day, month, year) in query:
             date = datetime.date(day=day, month=month, year=year)
-            if last_published is None or date > today_date:
+            if last_published is None or date > last_published:
                 last_published = date
         
         # last_published == None is also covered
