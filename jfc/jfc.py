@@ -7,7 +7,7 @@ import headers
 
 SETTINGS_TOML = 'settings.toml'
 
-if __name__ == "__main__":
+def main():
     conf_dir = os.path.dirname(os.path.realpath(__file__))
     
     # Read the settings

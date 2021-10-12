@@ -7,13 +7,13 @@
 **Consider using [`pipx`][pipx].**
 
 ```bash
-pipx install git@github.com:mikeevmm/jfc.git
+pipx install git+git@github.com:mikeevmm/jfc.git
 ```
 
 Otherwise, if you are using `pip`:
 
 ```bash
-pip install git@github.com:mikeevmm/jfc.git
+pip install git+git@github.com:mikeevmm/jfc.git
 ```
 
 ## How to Use
