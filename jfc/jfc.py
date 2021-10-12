@@ -8,9 +8,11 @@ import sys
 import sqlite3
 import halo
 import datetime
+import random
 import jfc.headers as headers
 import jfc.defaults as defaults
 import jfc.arxiv as arxiv
+import jfc.log as log
 
 
 CATEGORY_KEYS = [
@@ -69,25 +71,26 @@ def main():
         headers.print_header()
         print('')
     
-    with halo.Halo(text='Warming up engines', spinner='dots'):
+    with halo.Halo(text='Warming up engines', spinner='dots') as spinner, \
+         sqlite3.connect(db_path) as db:
         # Load the database
-        db = sqlite3.connect(db_path)
         cursor = db.cursor()
 
         # Initialize articles table if first time
         cursor.execute('''CREATE TABLE IF NOT EXISTS articles
-                        (id INTEGER NOT NULL PRIMARY KEY,
-                         year INTEGER NOT NULL,
+                        (year INTEGER NOT NULL,
                          month INTEGER NOT NULL,
                          day INTEGER NOT NULL,
                          title TEXT NOT NULL,
                          abstract TEXT NOT NULL,
-                         link TEXT NOT NULL UNIQUE)''')
+                         authors TEXT NOT NULL,
+                         category TEXT NOT NULL,
+                         link TEXT NOT NULL PRIMARY KEY)''')
     
         # Prune the database of old articles
         # Prune since when?
         conf_delta = conf['span']
-        prune_since = today - datetime.timedelta(days=conf_delta)
+        prune_since = (today - datetime.timedelta(days=conf_delta)).date()
 
         cursor.execute('DELETE FROM articles WHERE YEAR<:year OR '
                         '(YEAR=:year AND MONTH<:month) OR '
@@ -116,7 +119,71 @@ def main():
             #  the ArXiv query.
             categories = [cat for cat in CATEGORY_KEYS
                             if conf['categories'].get(cat, False)]
+            
+            for results_page in arxiv.query(categories, page_size=150):
+                spinner.text = random.choice([
+                    'Perusing ArXiv...',
+                    'Eyeing articles...',
+                    'Contacting Reviewer #2...',
+                    'Checking out the math...',
+                    'Contacting the corresponding author...',
+                    'Commenting publication...',
+                    'Skipping to the conclusions...',
+                    'Recompiling LaTeX...'])
 
-            for results_page in arxiv.query(categories):
-                pass
-                break # TODO
+                if results_page['bozo'] == True:
+                    spinner.fail(
+                        'Something went wrong on the ArXiv end of things. '
+                        'Please try again later.')
+                    exit(1)
+
+                items_to_insert = []
+
+                for entry in results_page['entries']:
+                    item = {
+                        'link': entry['link'],
+                        'date': datetime.date(*entry['updated_parsed'][:3]),
+                        'title': entry['title'],
+                        'abstract': entry['summary'],
+                        'authors': [
+                            author['name'] for author in entry['authors']],
+                        'category': entry['arxiv_primary_category']['term']
+                    }
+
+                    # Results are sorted by update date from newest to oldest,
+                    # so if we're looking at dates older than the pruning date
+                    # we can abort.
+                    if item['date'] < prune_since:
+                        break
+                    
+                    # Likewise, if the link is found in the database, then we've
+                    # already seen this and everything older.
+                    query = cursor.execute(
+                        'SELECT EXISTS(SELECT 1 FROM articles WHERE link=:link)',
+                        {'link': item['link']})
+                    seen = False
+                    for value in query:
+                        if value != (0,):
+                            seen = True
+                    if seen:
+                        break 
+                    
+                    # Otherwise, push this item into the database
+                    # We can batch-execute queries/inserts into the SQL database,
+                    # so we postpone this to the end of the loop.
+                
+                cursor.executemany(
+                    'INSERT INTO articles '
+                    '(year, month, day, title, abstract, authors, category, '
+                        'link) '
+                    'VALUES '
+                    '(?, ?, ?, ?, ?, ?, ?, ?)',
+                    [(item['date'].year,
+                      item['date'].month,
+                      item['date'].day,
+                      item['abstract'],
+                      item['title'],
+                      ', '.join(item['authors']),
+                      item['category'],
+                      item['link'])
+                    for item in items_to_insert])

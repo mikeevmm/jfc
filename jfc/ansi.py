@@ -5,7 +5,7 @@
 # From stackoverflow:287871,
 # Author: joeld
 # Modified.
-class ansicolors:
+class colors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKCYAN = '\033[96m'
@@ -18,8 +18,8 @@ class ansicolors:
 # ---
 
 COLORS = [
-    ansicolors.OKBLUE,
-    ansicolors.OKCYAN,
-    ansicolors.OKGREEN,
-    ansicolors.WARNING,
-    ansicolors.FAIL]
+    colors.OKBLUE,
+    colors.OKCYAN,
+    colors.OKGREEN,
+    colors.WARNING,
+    colors.FAIL]

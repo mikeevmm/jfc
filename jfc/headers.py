@@ -139,5 +139,5 @@ def print_header():
         ' '*phrase_padding,
         phrase_color,
         phrase,
-        ansi.ansicolors.ENDC,
+        ansi.colors.ENDC,
         sep='')
