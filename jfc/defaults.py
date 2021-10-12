@@ -4,4 +4,7 @@
 SETTINGS = '''
 span = 7
 show_header = true
+
+[categories]
+quant-ph = true
 '''

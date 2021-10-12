@@ -43,6 +43,29 @@ this means you can quickly edit the configuration (in bash) with
  * `span` The timeframe of publication dates to aggregate, in days, and
     counting backwards from today. [Default: 7]
  * `show_header` Whether to be boring (`false`) or not (`true`) [Default: true]
+ * `[categories]` Set each item below it to `true` to include it in the ArXiv
+    search. Every element defaults to `false`, except `quant-ph`, which defaults
+    to `true`.
+   + `cs`
+   + `econ`
+   + `eess`
+   + `math`
+   + `astro-ph`
+   + `cond-mat`
+   + `gr-qc`
+   + `hep-ex`
+   + `hep-lat`
+   + `hep-ph`
+   + `hep-th`
+   + `math-ph`
+   + `nlin`
+   + `nucl-ex`
+   + `nucl-th`
+   + `physics`
+   + `quant-ph`
+   + `q-bio`
+   + `q-fin`
+   + `stat`
 
 ## Contributing
 
