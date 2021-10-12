@@ -44,6 +44,12 @@ this means you can quickly edit the configuration (in bash) with
     counting backwards from today. [Default: 7]
  * `show_header` Whether to be boring (`false`) or not (`true`) [Default: true]
 
+## Contributing
+
+Pull requests are welcome. Issues are not guaranteed to be addressed. `jfc` is
+built primarily for self-use, provided to you for free, and not my primary
+occupation. Please respect this.
+
 ## Licence
 
 `jfc` is licenced under a GNU General Public License, version 3. This
