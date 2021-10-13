@@ -78,9 +78,10 @@ def main():
 
     # Config. reset mode?
     if arguments['clean']:
-        if arguments['config'] and os.path.exists(conf_path):
+        if ((arguments['config'] or arguments['all']) 
+                and os.path.exists(conf_path)):
             os.rename(conf_path, os.path.join(conf_dir, 'settings.toml.old'))
-        if arguments['db'] and os.path.exists(db_path):
+        if (arguments['db'] or arguments['all']) and os.path.exists(db_path):
             os.rename(db_path, os.path.join(data_dir, 'articles.db.old'))
         exit(0)
 
