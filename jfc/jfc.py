@@ -339,7 +339,6 @@ def main():
                     webbrowser.open(article['link'])
 
         except KeyboardInterrupt:
-            db.close()
             exit(0)
 
     rich.print('[green]:heavy_check_mark: All caught up![/green]')
