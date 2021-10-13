@@ -253,6 +253,7 @@ def main():
                     for item in items_to_insert])
                 
                 if finished:
+                    db.commit()
                     spinner.succeed('Done.')
                     break
     
@@ -283,6 +284,7 @@ def main():
                         'UPDATE articles SET read=1 WHERE link=:link '
                         'LIMIT 1',
                         {'link':article['link']})
+                db.commit()
 
                 # Show the article
                 console.rule()
