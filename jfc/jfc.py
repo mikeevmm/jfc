@@ -9,13 +9,14 @@ import sqlite3
 import halo
 import datetime
 import random
-import curses
+import rich
+import rich.console
+import rich.prompt
 import webbrowser
 import jfc.headers as headers
 import jfc.defaults as defaults
 import jfc.arxiv as arxiv
 import jfc.log as log
-import jfc.ansi as ansi
 
 
 CATEGORY_KEYS = [
@@ -222,7 +223,8 @@ def main():
                       item['date'].month,
                       item['date'].day,
                       item['title'],
-                      item['abstract'],
+                      ' '.join(line.strip()
+                        for line in item['abstract'].splitlines()),
                       ', '.join(item['authors']),
                       item['category'],
                       item['link'],
@@ -247,21 +249,58 @@ def main():
                 ('year', 'month', 'day', 'title', 'abstract', 'authors',
                     'category', 'link', 'read'), element)}
             for element in query]
-
-        if len(articles) == 0:
-            print('You\'re all caught up!')
-            exit(0)
-
         random.shuffle(articles)
 
-        # Start showing articles
-        def main(stdscr):
-            stdscr.clear()
-            
-            width = curses.COLS
-            height = curses.LINES
+        # Show the articles
 
-            for article in articles:
-                pass
-        
-        curses.wrapper(main)
+        console = rich.console.Console()
+        for article in articles:
+            # Immediately set the article as read. This will allow us to skip
+            # early to the next article if the user asks to do so.
+            cursor.execute(
+                    'UPDATE articles SET read=true WHERE link=:link '
+                    'LIMIT 1',
+                    {'link':article['link']})
+
+            # Show the article
+            console.rule()
+            console.print('')
+            console.print(article['title'], justify='center', soft_wrap=True)
+            console.print(article['authors'], justify='center',
+                    soft_wrap=True, style='dim')
+            console.print(article['link'], justify='center', style='dim')
+            console.print('')
+                
+            action = rich.prompt.Prompt.ask(
+                    '[bold green][N][/bold green] Next  '
+                    '[bold green][A][/bold green] Show abstract ',
+                    choices=['n', 'a', 'N', 'A'], default='N').lower()
+
+            # Skip to next article
+            if action == 'n':
+                continue
+            
+            # Otherwise, show the abstract; do this in a separate screen
+            with console.screen():
+                console.print('\n')
+                console.print(article['title'], justify='center', soft_wrap=True)
+                console.print(article['authors'], justify='center',
+                        soft_wrap=True, style='dim')
+                console.print(article['link'], justify='center', style='dim')
+                console.print('\n')
+                console.print(article['abstract'], soft_wrap=True)
+                console.print('')
+
+                action = rich.prompt.Prompt.ask(
+                        '[bold green][N][/bold green] Next  '
+                        '[bold green][O][/bold green] Open in Browser',
+                        choices=['n', 'o', 'N', 'O'], default='N').lower()
+
+                # Skip to the next article
+                if action == 'n':
+                    continue
+
+                # Otherwise, open the article in the browser, and continue.
+                webbrowser.open(article['link'])
+
+    rich.print('[green]:checkmark: All caught up![/green]')
