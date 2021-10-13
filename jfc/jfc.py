@@ -25,6 +25,7 @@ import sqlite3
 import halo
 import datetime
 import random
+import textwrap
 import rich
 import rich.console
 import rich.prompt
@@ -286,10 +287,12 @@ def main():
                 # Show the article
                 console.rule()
                 console.print('')
-                console.print(article['title'], justify='center',
-                        soft_wrap=True)
-                console.print(article['authors'], justify='center',
-                        soft_wrap=True, style='dim')
+                for line in textwrap.wrap(
+                    article['title'], width=console.width):
+                    console.print(line, justify='center', soft_wrap=True)
+                for line in textwrap.wrap(
+                    article['authors'], width=console.width):
+                    console.print(line, justify='center', style='dim')
                 console.print(article['link'], justify='center', style='dim')
                 console.print('')
                     
@@ -307,14 +310,18 @@ def main():
                 # Otherwise, show the abstract; do this in a separate screen
                 with console.screen():
                     console.print('\n')
-                    console.print(article['title'], justify='center',
-                            soft_wrap=True)
-                    console.print(article['authors'], justify='center',
-                            soft_wrap=True, style='dim')
-                    console.print(article['link'], justify='center',
-                            style='dim')
+                    for line in textwrap.wrap(
+                        article['title'], width=console.width):
+                        console.print(line, justify='center', soft_wrap=True)
+                    for line in textwrap.wrap(
+                        article['authors'], width=console.width):
+                        console.print(line, justify='center', style='dim')
+                    console.print(
+                        article['link'], justify='center', style='dim')
                     console.print('\n')
-                    console.print(article['abstract'], soft_wrap=True)
+                    for line in textwrap.wrap(
+                        article['abstract'], width=console.width):
+                        console.print(line, soft_wrap=True)
                     console.print('')
 
                     action = rich.prompt.Prompt.ask(
