@@ -223,7 +223,7 @@ def main():
                         query = cursor.execute(
                             'SELECT EXISTS(SELECT 1 FROM articles '
                             'WHERE link=?)',
-                            item['link'])
+                            (item['link'],))
                     seen = False
                     for value in query:
                         if value != (0,):
@@ -287,7 +287,7 @@ def main():
                     cursor.execute(
                             'UPDATE articles SET read=1 WHERE link=? '
                             'LIMIT 1',
-                            article['link'])
+                            (article['link'],))
                 db.commit()
 
                 # Show the article
