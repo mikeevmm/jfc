@@ -341,4 +341,4 @@ def main():
         except KeyboardInterrupt:
             exit(0)
 
-    rich.print('[green]:checkmark: All caught up![/green]')
+    rich.print('[green]:heavy_check_mark: All caught up![/green]')
