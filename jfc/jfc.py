@@ -282,7 +282,7 @@ def main():
             for article in articles:
                 # Immediately set the article as read. This will allow us to
                 # skip early to the next article if the user asks to do so.
-                with db.cursor() as cursor():
+                with db.cursor() as cursor:
                     cursor.execute(
                             'UPDATE articles SET read=1 WHERE link=? '
                             'LIMIT 1',
