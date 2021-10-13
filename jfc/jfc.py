@@ -1,6 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""Making Journal Club easier.
 
+Usage:
+    jfc
+    jfc config
+    jfc clean db
+    jfc clean config
+    jfc clean all
+    jfc --version
+    jfc --help
+
+Options:
+    --version   Show version.
+    --help      Show this screen.
+"""
+
+import docopt
 import toml
 import os
 import appdirs
@@ -13,6 +29,7 @@ import rich
 import rich.console
 import rich.prompt
 import webbrowser
+import jfc.version as version
 import jfc.headers as headers
 import jfc.defaults as defaults
 import jfc.arxiv as arxiv
@@ -44,6 +61,8 @@ CATEGORY_KEYS = [
 
 
 def main():
+    arguments = docopt.docopt(__doc__, version=version.__version__)
+
     conf_dir = appdirs.user_config_dir('jfc', 'mikeevmm')
     data_dir = appdirs.user_data_dir('jfc', 'mikeevmm')
     today = datetime.datetime.today()
@@ -58,10 +77,10 @@ def main():
     db_path = os.path.join(data_dir, 'articles.db')
 
     # Config. reset mode?
-    if len(sys.argv) > 1 and sys.argv[1].lower() == 'clean':
-        if os.path.exists(conf_path):
+    if arguments['clean']:
+        if arguments['config'] and os.path.exists(conf_path):
             os.rename(conf_path, os.path.join(conf_dir, 'settings.toml.old'))
-        if os.path.exists(db_path):
+        if arguments['db'] and os.path.exists(db_path):
             os.rename(db_path, os.path.join(data_dir, 'articles.db.old'))
         exit(0)
 
@@ -72,7 +91,7 @@ def main():
             conf_file.write(defaults.SETTINGS)
 
     # Config. dir. output mode?
-    if len(sys.argv) > 1 and sys.argv[1].lower() == 'config':
+    if arguments['config']:
         print(conf_path, end='')
         exit(0)
 
