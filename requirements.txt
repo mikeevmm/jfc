@@ -4,7 +4,6 @@ commonmark==0.9.1
 docopt==0.6.2
 feedparser==6.0.8
 halo==0.0.31
--e git+git@github.com:mikeevmm/jfc.git@680eea50b2c47608353d587f298aa76f833461f9#egg=jfc
 log-symbols==0.0.14
 Pygments==2.10.0
 rich==10.12.0
