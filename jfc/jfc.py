@@ -280,7 +280,7 @@ def main():
                 # Immediately set the article as read. This will allow us to
                 # skip early to the next article if the user asks to do so.
                 cursor.execute(
-                        'UPDATE articles SET read=true WHERE link=:link '
+                        'UPDATE articles SET read=1 WHERE link=:link '
                         'LIMIT 1',
                         {'link':article['link']})
 
@@ -339,6 +339,7 @@ def main():
                     webbrowser.open(article['link'])
 
         except KeyboardInterrupt:
+            db.close()
             exit(0)
 
     rich.print('[green]:heavy_check_mark: All caught up![/green]')
