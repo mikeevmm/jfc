@@ -90,6 +90,15 @@ occupation. Please respect this.
 
 You can find a copy of the licence under `LICENCE`.
 
+## Support
+
+We're all poor students, so we know how this goes. Nonetheless, getting
+donations, no matter how small, lets me know that people use and appreciate the
+software I've published.
+
+💕 If you like and use `jfc`, consider
+[buying me a coffee](https://www.paypal.me/miguelmurca/2.50).
+
 [pipx]: https://github.com/pypa/pipx
 [appdirs]: https://pypi.org/project/appdirs/
 [TOML]: https://en.wikipedia.org/wiki/TOML
