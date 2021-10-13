@@ -4,13 +4,13 @@
 import rich
 
 def ok(msg):
-    rich.print(msg, style='green')
+    rich.print(f'[green]{msg}[/green]')
 
 def log(msg):
-    rich.print(msg, style='blue')
+    rich.print(f'[blue]{msg}[/blue]')
 
 def warn(msg):
-    rich.print(msg, style='yellow')
+    rich.print(f'[yellow]{msg}[/yellow]')
 
 def error(msg):
-    rich.print(msg, style='red')
+    rich.print(f'[red]{msg}[/red]')
