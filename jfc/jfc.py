@@ -253,54 +253,61 @@ def main():
 
         # Show the articles
 
-        console = rich.console.Console()
-        for article in articles:
-            # Immediately set the article as read. This will allow us to skip
-            # early to the next article if the user asks to do so.
-            cursor.execute(
-                    'UPDATE articles SET read=true WHERE link=:link '
-                    'LIMIT 1',
-                    {'link':article['link']})
+        try:
+            console = rich.console.Console()
+            for article in articles:
+                # Immediately set the article as read. This will allow us to
+                # skip early to the next article if the user asks to do so.
+                cursor.execute(
+                        'UPDATE articles SET read=true WHERE link=:link '
+                        'LIMIT 1',
+                        {'link':article['link']})
 
-            # Show the article
-            console.rule()
-            console.print('')
-            console.print(article['title'], justify='center', soft_wrap=True)
-            console.print(article['authors'], justify='center',
-                    soft_wrap=True, style='dim')
-            console.print(article['link'], justify='center', style='dim')
-            console.print('')
-                
-            action = rich.prompt.Prompt.ask(
-                    '[bold green][N][/bold green] Next  '
-                    '[bold green][A][/bold green] Show abstract ',
-                    choices=['n', 'a', 'N', 'A'], default='N').lower()
-
-            # Skip to next article
-            if action == 'n':
-                continue
-            
-            # Otherwise, show the abstract; do this in a separate screen
-            with console.screen():
-                console.print('\n')
-                console.print(article['title'], justify='center', soft_wrap=True)
+                # Show the article
+                console.rule()
+                console.print('')
+                console.print(article['title'], justify='center',
+                        soft_wrap=True)
                 console.print(article['authors'], justify='center',
                         soft_wrap=True, style='dim')
                 console.print(article['link'], justify='center', style='dim')
-                console.print('\n')
-                console.print(article['abstract'], soft_wrap=True)
                 console.print('')
-
+                    
                 action = rich.prompt.Prompt.ask(
                         '[bold green][N][/bold green] Next  '
-                        '[bold green][O][/bold green] Open in Browser',
-                        choices=['n', 'o', 'N', 'O'], default='N').lower()
+                        '[bold green][A][/bold green] Show abstract ',
+                        choices=['n', 'a', 'N', 'A'], default='N').lower()
 
-                # Skip to the next article
+                # Skip to next article
                 if action == 'n':
                     continue
+                
+                # Otherwise, show the abstract; do this in a separate screen
+                with console.screen():
+                    console.print('\n')
+                    console.print(article['title'], justify='center',
+                            soft_wrap=True)
+                    console.print(article['authors'], justify='center',
+                            soft_wrap=True, style='dim')
+                    console.print(article['link'], justify='center',
+                            style='dim')
+                    console.print('\n')
+                    console.print(article['abstract'], soft_wrap=True)
+                    console.print('')
 
-                # Otherwise, open the article in the browser, and continue.
-                webbrowser.open(article['link'])
+                    action = rich.prompt.Prompt.ask(
+                            '[bold green][N][/bold green] Next  '
+                            '[bold green][O][/bold green] Open in Browser',
+                            choices=['n', 'o', 'N', 'O'], default='N').lower()
+
+                    # Skip to the next article
+                    if action == 'n':
+                        continue
+
+                    # Otherwise, open the article in the browser, and continue.
+                    webbrowser.open(article['link'])
+
+        except KeyboardInterrupt:
+            exit(0)
 
     rich.print('[green]:checkmark: All caught up![/green]')
