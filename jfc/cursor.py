@@ -11,6 +11,6 @@ class WithCursor():
     def __enter__(self):
         return self.cursor
 
-    def __exit(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback):
         db.commit()
         
