@@ -285,8 +285,7 @@ def main():
                 # skip early to the next article if the user asks to do so.
                 with WithCursor(db, db.cursor()) as cursor:
                     cursor.execute(
-                            'UPDATE articles SET read=1 WHERE link=? '
-                            'LIMIT 1',
+                            'UPDATE articles SET read=1 WHERE link=?'
                             (article['link'],))
                 db.commit()
 
