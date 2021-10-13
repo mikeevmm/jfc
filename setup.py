@@ -1,5 +1,5 @@
 import setuptools
-from jfc import __version__
+from jfc.version import __version__
 
 with open('README.md', 'r') as readme_file:
     long_description = readme_file.read()
