@@ -142,7 +142,7 @@ def main():
         # (or if we have already done so today)
         last_published = None
         today_date = today.date()
-        with db.cursor() as cursor():
+        with db.cursor() as cursor:
             query = cursor.execute('SELECT day, month, year FROM articles')
         for (day, month, year) in query:
             date = datetime.date(day=day, month=month, year=year)
