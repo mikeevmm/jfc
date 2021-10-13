@@ -124,7 +124,9 @@ PHRASES = [
     'I just like the Hacker aesthetic, ok?',
     'Is this thing on?',
     'Did you ever hear the tragedy of arXiv, the Wise?',
-    'PhD LOL'
+    'PhD LOL',
+    'You too can add your funny content here, with the power of Pull Requests.',
+    'Why did the preprint cross the road?'
 ]
 
 def print_header():
