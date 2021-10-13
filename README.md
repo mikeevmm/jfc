@@ -2,7 +2,7 @@
 
 `jfc` is an utility to make reviewing ArXiv papers for your Journal Club easier.
 
-![demo.gif](demo)
+![demo](demo.gif)
 
 ## Install
 
