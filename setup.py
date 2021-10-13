@@ -1,4 +1,5 @@
 import setuptools
+from jfc import __version__
 
 with open('README.md', 'r') as readme_file:
     long_description = readme_file.read()
@@ -10,7 +11,7 @@ with open('requirements.txt', 'r') as requirements:
 
 setuptools.setup(
     name='jfc',
-    version='0.0.1',
+    version=__version__,
     author='Miguel Murça',
     author_email='miguelmurca+jfc@gmail.com',
     description='Making Journal Club easier.',
