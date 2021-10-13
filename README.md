@@ -40,8 +40,21 @@ this means you can quickly edit the configuration (in bash) with
 <your favourite editor> $(jfc config)
 ```
 
-Running `jfc clean` will clean your configuration and article database. A copy
-of the old files is kept with a `.old` extension, so that these can be recovered.
+To clean the configuration and/or article database, run one of 
+
+```bash
+jfc clean conf
+jfc clean db
+jfc clean all
+```
+
+A copy of the old files is kept with a `.old` extension, so that these can be
+recovered. In particular, your old configuration can be recovered (in bash)
+with
+
+```bash
+mv "$(jfc config).old" "$(jfc config)"
+```
 
 ### Parameters
 
