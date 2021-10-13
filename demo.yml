@@ -1,0 +1,389 @@
+# The configurations that used for the recording, feel free to edit them
+config:
+
+  # Specify a command to be executed
+  # like `/bin/bash -l`, `ls`, or any other commands
+  # the default is bash for Linux
+  # or powershell.exe for Windows
+  command: bash -l
+  
+  # Specify the current working directory path
+  # the default is the current working directory path
+  cwd: /home/miguelmurca/Documents/Programming/jfc
+  
+  # Export additional ENV variables
+  env:
+    recording: true
+  
+  # Explicitly set the number of columns
+  # or use `auto` to take the current
+  # number of columns of your shell
+  cols: 80
+  
+  # Explicitly set the number of rows
+  # or use `auto` to take the current
+  # number of rows of your shell
+  rows: 24
+  
+  # Amount of times to repeat GIF
+  # If value is -1, play once
+  # If value is 0, loop indefinitely
+  # If value is a positive number, loop n times
+  repeat: 0
+  
+  # Quality
+  # 1 - 100
+  quality: 100
+  
+  # Delay between frames in ms
+  # If the value is `auto` use the actual recording delays
+  frameDelay: auto
+  
+  # Maximum delay between frames in ms
+  # Ignored if the `frameDelay` isn't set to `auto`
+  # Set to `auto` to prevent limiting the max idle time
+  maxIdleTime: 2000
+  
+  # The surrounding frame box
+  # The `type` can be null, window, floating, or solid`
+  # To hide the title use the value null
+  # Don't forget to add a backgroundColor style with a null as type
+  frameBox:
+    type: floating
+    title: 
+    style:
+      border: 0px black solid
+      # boxShadow: none
+      # margin: 0px
+  
+  # Add a watermark image to the rendered gif
+  # You need to specify an absolute path for
+  # the image on your machine or a URL, and you can also
+  # add your own CSS styles
+  watermark:
+    imagePath: null
+    style:
+      position: absolute
+      right: 15px
+      bottom: 15px
+      width: 100px
+      opacity: 0.9
+  
+  # Cursor style can be one of
+  # `block`, `underline`, or `bar`
+  cursorStyle: block
+  
+  # Font family
+  # You can use any font that is installed on your machine
+  # in CSS-like syntax
+  fontFamily: "Monaco, Lucida Console, Ubuntu Mono, Monospace"
+  
+  # The size of the font
+  fontSize: 12
+  
+  # The height of lines
+  lineHeight: 1
+  
+  # The spacing between letters
+  letterSpacing: 0
+  
+  # Theme
+  theme:
+    background: "transparent"
+    foreground: "#afafaf"
+    cursor: "#c7c7c7"
+    black: "#232628"
+    red: "#fc4384"
+    green: "#b3e33b"
+    yellow: "#ffa727"
+    blue: "#75dff2"
+    magenta: "#ae89fe"
+    cyan: "#708387"
+    white: "#d5d5d0"
+    brightBlack: "#626566"
+    brightRed: "#ff7fac"
+    brightGreen: "#c8ed71"
+    brightYellow: "#ebdf86"
+    brightBlue: "#75dff2"
+    brightMagenta: "#ae89fe"
+    brightCyan: "#b1c6ca"
+    brightWhite: "#f9f9f4"
+  
+# Records, feel free to edit them
+records:
+  - delay: 792
+    content: "\e]0;miguelmurca@Aspire-A515-52G:~/Documents/Programming/jfc\e\\\e]7;file://Aspire-A515-52G/home/miguelmurca/Documents/Programming/jfc\e\\"
+  - delay: 64
+    content: "\r\n\e[1;36mjfc\e[0m on \e[1;35m \e[0m\e[1;35mmaster\e[0m via \e[1;33m\U0001F40D \e[0m\e[1;33m\e[0m\e[1;33mv3.8.10\e[0m\e[1;33m \e[0m\e[1;33m(\e[0m\e[1;33mjfc\e[0m\e[1;33m) \e[0m\r\n\e[1;32mλ\e[0m "
+  - delay: 778
+    content: j
+  - delay: 129
+    content: f
+  - delay: 192
+    content: c
+  - delay: 419
+    content: "\r\n"
+  - delay: 154
+    content: "                                .ed\"\"\"\" \"\"\"$$$$be.\r\n                              -\"           ^\"\"**$$$e.\r\n                            .\"                   '$$$c\r\n                           /                      \"4$$b\r\n                          d  3                      $$$$\r\n                          $  *                   .$$$$$$\r\n                         .$  ^c           $$$$$e$$$$$$$$.\r\n                         d$L  4.         4$$$$$$$$$$$$$$b\r\n                         $$$$b ^ceeeee.  4$$ECL.F*$$$$$$$\r\n             e$\"\"=.      $$$$P d$$$$F $ $$$$$$$$$- $$$$$$\r\n            z$$b. ^c     3$$$F \"$$$$b   $\"$$$$$$$  $$$$*\"      .=\"\"$c\r\n           4$$$$L        $$P\"  \"$$b   .$ $$$$$...e$$        .=  e$$$.\r\n           ^*$$$$$c  %..   *c    ..    $$ 3$$$$$$$$$$eF     zP  d$$$$$\r\n             \"**$$$ec   \"   %ce\"\"    $$$  $$$$$$$$$$*    .r\" =$$$$P\"\"\r\n                   \"*$b.  \"c  *$e.    *** d$$$$$\"L$$    .d\"  e$$***\"\r\n                     ^*$$c ^$c $$$      4J$$$$$% $$$ .e*\".eeP\"\r\n                        \"$$$$$$\"'$=e....$*$$**$cz$$\" \"..d$*\"\r\n                          \"*$$$  *=%4.$ L L$ P3$$$F $$$P\"\r\n                             \"$   \"%*ebJLzb$e$$$$$b $P\"\r\n                               %..      4$$$$$$$$$$ \"\r\n                                $$$e   z$$$$$$$$$$%\r\n                                 \"*$c  \"$$$$$$$P\"\r\n                                  .\"\"\"*$$$$$$$$bc\r\n                               .-\"    .$***$$$\"\"\"*e.\r\n                            .-\"    .e$\"     \"*$c  ^*b.\r\n                     .=*\"\"\"\"    .e$*\"          \"*bc  \"*$e..\r\n                   .$\"        .z*\"               ^*$e.   \"*****e.\r\n                   $$ee$c   .d\"                     \"*$.        3.\r\n                   ^*$E\")$..$\"                         *   .ee==d%\r\n                      $.d$$$*                           *  J$$$e*\r\n                       \"\"\"\"\"                              \"$$$\"\r\n\e[0m\r\n\e[0m                                    \e[34mPhD LOL\e[0m\r\n\e[0m\e[0m\r\n\e[0m\e[33mIt seems like this is the first time running jfc. Please give it some time to \e[0m\r\n\e[33mfetch articles.\e[0m\r\n\e[0m\e[?25l\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠋\e[0m Warming up engines...\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠙\e[0m Warming up engines..."
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠹\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠸\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠼\e[0m Warming up engines..."
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠴\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠦\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠧\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠇\e[0m Warming up engines..."
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠏\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠋\e[0m Warming up engines..."
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠙\e[0m Warming up engines..."
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠹\e[0m Warming up engines..."
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠸\e[0m Warming up engines..."
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠼\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠴\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠦\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠧\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠇\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠏\e[0m Warming up engines..."
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠋\e[0m Warming up engines..."
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠙\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠹\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠸\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠼\e[0m Warming up engines..."
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠴\e[0m Warming up engines..."
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠦\e[0m Warming up engines..."
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠧\e[0m Warming up engines..."
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠇\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠏\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠋\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠙\e[0m Warming up engines..."
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠹\e[0m Warming up engines..."
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠸\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠼\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠴\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠦\e[0m Warming up engines..."
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠧\e[0m Warming up engines..."
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠇\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠏\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠋\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠙\e[0m Warming up engines..."
+  - delay: 85
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠹\e[0m Warming up engines..."
+  - delay: 91
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠸\e[0m Warming up engines..."
+  - delay: 90
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠼\e[0m Warming up engines..."
+  - delay: 91
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠴\e[0m Warming up engines..."
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠦\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠧\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠇\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠏\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠋\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠙\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠹\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠸\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠼\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠴\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠦\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠧\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠇\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠏\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠋\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠙\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠹\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠸\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠼\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠴\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠦\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠧\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠇\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠏\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠋\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠙\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠹\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠸\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠼\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠴\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠦\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠧\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠇\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠏\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠋\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠙\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠹\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠸\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠼\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠴\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠦\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠧\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠇\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠏\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠋\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠙\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠹\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠸\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠼\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠴\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠦\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠧\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠇\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠏\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠋\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠙\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠹\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠸\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠼\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠴\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠦\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠧\e[0m Commenting publication... (0)"
+  - delay: 81
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠇\e[0m Commenting publication... (0)"
+  - delay: 80
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠏\e[0m Commenting publication... (0)"
+  - delay: 85
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠋\e[0m Commenting publication... (0)"
+  - delay: 85
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠙\e[0m Commenting publication... (0)"
+  - delay: 86
+    content: "\e[0m\r\e[0m\e[K\e[0m\r\e[1m\e[36m⠹\e[0m Commenting publication... (0)"
+  - delay: 90
+    content: "\e[0m\r"
+  - delay: 5
+    content: "\e[0m\e[K"
+  - delay: 5
+    content: "\e[0m\r\e[1m\e[36m⠸\e[0m Commenting publication... (0)"
+  - delay: 86
+    content: "\e[0m\r\e[0m\e[K\e[0m\e[?25h\e[0m\e[32m✔\e[39m Done.\r\n"
+  - delay: 111
+    content: "\e[0m\r\e[0m\e[K\e[0m\e[?25h\e[0m"
+  - delay: 9
+    content: "\e[92m────────────────────────────────────────────────────────────────────────────────\e[0m\r\n\e[0m\r\n\e[0m           Bose-Einstein statistics for a finite number of particles            \r\n\e[0m\e[2m                                  \e[0m\e[2mPedro Pessoa\e[0m\e[2m                                  \e[0m\e[2m\r\n\e[0m\e[0m\e[2m                       \e[0m\e[2;4;94mhttp://arxiv.org/abs/2110.02890v2\e[0m\e[2m                        \e[0m\r\n\e[0m\r\n\e[0m\e[1;32m[N]\e[0m Next  \e[1;32m[A]\e[0m Show abstract  \e[1;35m[n/a/N/A]\e[0m \e[1;36m(N)\e[0m: "
+  - delay: 1947
+    content: "\r\n\e[92m────────────────────────────────────────────────────────────────────────────────\e[0m\r\n\e[0m\r\n\e[0m     Provable quantum computational advantage with the cyclic cluster state     \r\n\e[0m\e[2mAustin K. Daniel, Yinyue Zhu, C. Huerta Alderete, Vikas Buchemmavari, Alaina M. Green, Nhung H. Nguyen, Tyler G. Thurtell, Andrew Zhao, Norbert M. Linke, Akimasa Miyake\e[0m\e[2m\r\n\e[0m\e[0m\e[2m                       \e[0m\e[2;4;94mhttp://arxiv.org/abs/2110.04277v1\e[0m\e[2m                        \e[0m\r\n\e[0m\r\n\e[0m\e[1;32m[N]\e[0m Next  \e[1;32m[A]\e[0m Show abstract  \e[1;35m[n/a/N/A]\e[0m \e[1;36m(N)\e[0m: "
+  - delay: 2010
+    content: "\r\n\e[92m────────────────────────────────────────────────────────────────────────────────\e[0m\r\n\e[0m\r\n\e[0m        Experimental Realization of Rabi-Hubbard Model with Trapped Ions        \r\n\e[0m\e[2mQuanxin Mei, Bowen Li, Yukai Wu, Minglei Cai, Ye Wang, Lin Yao, Zichao Zhou, Luming Duan\e[0m\e[2m\r\n\e[0m\e[0m\e[2m                       \e[0m\e[2;4;94mhttp://arxiv.org/abs/2110.03227v1\e[0m\e[2m                        \e[0m\r\n\e[0m\r\n\e[0m\e[1;32m[N]\e[0m Next  \e[1;32m[A]\e[0m Show abstract  \e[1;35m[n/a/N/A]\e[0m \e[1;36m(N)\e[0m: "
+  - delay: 1624
+    content: "\r\n\e[92m────────────────────────────────────────────────────────────────────────────────\e[0m\r\n\e[0m\r\n\e[0mSharing quantum steering among multiple Alices and Bobs via a two-qubit Werner state\r\n\e[0m\e[2m \e[0m\e[2mXinhong Han, Ya Xiao, Huichao Qu, Runhong He, Xuan Fan, Tian Qian, Yongjian Gu\e[0m\e[2m \e[0m\e[2m\r\n\e[0m\e[0m\e[2m                       \e[0m\e[2;4;94mhttp://arxiv.org/abs/2110.03859v2\e[0m\e[2m                        \e[0m\r\n\e[0m\r\n\e[0m\e[1;32m[N]\e[0m Next  \e[1;32m[A]\e[0m Show abstract  \e[1;35m[n/a/N/A]\e[0m \e[1;36m(N)\e[0m: "
+  - delay: 2346
+    content: a
+  - delay: 327
+    content: "\r\n\e[?1049h\e[H\e[0m\e[?25l\e[0m\r\n\r\n\e[0mSharing quantum steering among multiple Alices and Bobs via a two-qubit Werner state\r\n\e[0m\e[2m \e[0m\e[2mXinhong Han, Ya Xiao, Huichao Qu, Runhong He, Xuan Fan, Tian Qian, Yongjian Gu\e[0m\e[2m \e[0m\e[2m\r\n\e[0m\e[0m\e[2m                       \e[0m\e[2;4;94mhttp://arxiv.org/abs/2110.03859v2\e[0m\e[2m                        \e[0m\r\n\e[0m\r\n\r\n\e[0mQuantum steering, a type of quantum correlation with unique asymmetry, has important applications in asymmetric quantum information tasks. We consider a new quantum steering scenario in which one half of a two-qubit Werner state is sequentially measured by multiple Alices and the other half by multiple Bobs. We find that the maximum number of Alices who can share steering with a single Bob increases from \e[1;36m2\e[0m to \e[1;36m5\e[0m when the number of measurement settings $N$ increases from \e[1;36m2\e[0m to \e[1;36m16\e[0m. Furthermore, we find a counterintuitive phenomenon that for a fixed $N$, at most \e[1;36m2\e[0m Alices can share steering with \e[1;36m2\e[0m Bobs, while \e[1;36m4\e[0m or more Alices are allowed to share steering with a single Bob. We further analyze the robustness of the steering sharing by calculating the required purity of the initial Werner state, the lower bound of which varies from \e[1;35m0.503\e[0m\e[1m(\e[0m\e[1;36m1\e[0m\e[1m)\e[0m to \e[1;35m0.979\e[0m\e[1m(\e[0m\e[1;36m5\e[0m\e[1m)\e[0m. Finally, we show that our both-sides sequential steering sharing scheme can be applied to control the steering ability, even the steering direction, if an initial asymmetric state or asymmetric measurement is adopted. Our work gives insights into the diversity of steering sharing and can be extended to study the problems such as genuine multipartite quantum steering when the sequential unsharp measurement is applied.\r\n\e[0m\r\n\e[0m\e[1;32m[N]\e[0m Next  \e[1;32m[O]\e[0m Open in Browser \e[1;35m[n/o/N/O]\e[0m \e[1;36m(N)\e[0m: "
+  - delay: 9711
+    content: o
+  - delay: 329
+    content: "\r\n"
+  - delay: 288
+    content: "\e[?1049l\e[0m\e[?25h\e[0m\e[92m────────────────────────────────────────────────────────────────────────────────\e[0m\r\n\e[0m\r\n\e[0mNumerical investigation of the logarithmic Schrödinger model of quantum decoherence\r\n\e[0m\e[2m                      \e[0m\e[2mRory van Geleuken, Andrew V. Martin\e[0m\e[2m                       \e[0m\e[2m\r\n\e[0m\e[0m\e[2m                       \e[0m\e[2;4;94mhttp://arxiv.org/abs/2110.04976v1\e[0m\e[2m                        \e[0m\r\n\e[0m\r\n\e[0m\e[1;32m[N]\e[0m Next  \e[1;32m[A]\e[0m Show abstract  \e[1;35m[n/a/N/A]\e[0m \e[1;36m(N)\e[0m: "
+  - delay: 1976
+    content: "\r\n\e[92m────────────────────────────────────────────────────────────────────────────────\e[0m\r\n\e[0m\r\n\e[0m             Efficient Quantum Gate Discovery with Optimal Control              \r\n\e[0m\e[2m                         \e[0m\e[2mPaul Kairys, Travis S. Humble\e[0m\e[2m                          \e[0m\e[2m\r\n\e[0m\e[0m\e[2m                       \e[0m\e[2;4;94mhttp://arxiv.org/abs/2110.02849v1\e[0m\e[2m                        \e[0m\r\n\e[0m\r\n\e[0m\e[1;32m[N]\e[0m Next  \e[1;32m[A]\e[0m Show abstract  \e[1;35m[n/a/N/A]\e[0m \e[1;36m(N)\e[0m: "
+  - delay: 2045
+    content: ^C
+  - delay: 6
+    content: "\r\e[0m\e[K\e[0m\e[?25h\e[0m\e[0m"
+  - delay: 69
+    content: "\e]0;miguelmurca@Aspire-A515-52G:~/Documents/Programming/jfc\e\\\e]7;file://Aspire-A515-52G/home/miguelmurca/Documents/Programming/jfc\e\\"
+  - delay: 56
+    content: "\r\n\e[1;36mjfc\e[0m on \e[1;35m \e[0m\e[1;35mmaster\e[0m via \e[1;33m\U0001F40D \e[0m\e[1;33m\e[0m\e[1;33mv3.8.10\e[0m\e[1;33m \e[0m\e[1;33m(\e[0m\e[1;33mjfc\e[0m\e[1;33m) \e[0m\r\n\e[1;32mλ\e[0m "
+  - delay: 640
+    content: "logout\r\n"
