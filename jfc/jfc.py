@@ -276,7 +276,9 @@ def main():
                 action = rich.prompt.Prompt.ask(
                         '[bold green][N][/bold green] Next  '
                         '[bold green][A][/bold green] Show abstract ',
-                        choices=['n', 'a', 'N', 'A'], default='N').lower()
+                        choices=['n', 'a', 'N', 'A'], default='N',
+                        show_choices=False).lower()
+                print('\033[F\033[F') # Overwrite the prompt
 
                 # Skip to next article
                 if action == 'n':
@@ -298,7 +300,9 @@ def main():
                     action = rich.prompt.Prompt.ask(
                             '[bold green][N][/bold green] Next  '
                             '[bold green][O][/bold green] Open in Browser',
-                            choices=['n', 'o', 'N', 'O'], default='N').lower()
+                            choices=['n', 'o', 'N', 'O'],
+                            show_choices=False, default='N').lower()
+                    print('\033[F\033[F') # Overwrite the prompt
 
                     # Skip to the next article
                     if action == 'n':
