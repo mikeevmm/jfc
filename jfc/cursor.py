@@ -12,5 +12,5 @@ class WithCursor():
         return self.cursor
 
     def __exit__(self, exc_type, exc_value, traceback):
-        db.commit()
+        self.db.commit()
         
