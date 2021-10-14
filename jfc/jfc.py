@@ -114,7 +114,7 @@ def main():
     with halo.Halo(text='Warming up engines...', spinner='dots') as spinner,\
          sqlite3.connect(db_path) as db:
         # Initialize articles table if first time
-        with WithCursor(db, db.cursor()) as cursor:
+        with WithCursor(db) as cursor:
             cursor.execute('''CREATE TABLE IF NOT EXISTS articles
                             (year INTEGER NOT NULL,
                              month INTEGER NOT NULL,
@@ -131,7 +131,7 @@ def main():
         conf_delta = conf.get('span', 7)
         prune_since = (today - datetime.timedelta(days=conf_delta)).date()
 
-        with WithCursor(db, db.cursor()) as cursor:
+        with WithCursor(db) as cursor:
             cursor.execute('DELETE FROM articles WHERE YEAR<:year OR '
                             '(YEAR=:year AND MONTH<:month) OR '
                             '(YEAR=:year AND MONTH=:month AND DAY<:day)',
@@ -143,7 +143,7 @@ def main():
         # (or if we have already done so today)
         last_published = None
         today_date = today.date()
-        with WithCursor(db, db.cursor()) as cursor:
+        with WithCursor(db) as cursor:
             query = cursor.execute('SELECT day, month, year FROM articles')
         for (day, month, year) in query:
             date = datetime.date(day=day, month=month, year=year)
@@ -237,7 +237,7 @@ def main():
                     # so we postpone this to the end of the loop.
                     items_to_insert.append(item)
                 
-                with WithCursor(db, db.cursor()) as cursor:
+                with WithCursor(db) as cursor:
                     cursor.executemany(
                         'INSERT INTO articles '
                         '(year, month, day, title, abstract, authors, '
@@ -267,7 +267,7 @@ def main():
         # of the tuple corresponds to is given by the order in which the columns
         # of the table were declared. This is less than ideal, but follows from
         # the integration with SQLite.
-        with WithCursor(db, db.cursor()) as cursor:
+        with WithCursor(db) as cursor:
             query = cursor.execute('SELECT * FROM articles WHERE read = false')
         articles = [
             {field: value for field, value in zip(
@@ -283,7 +283,7 @@ def main():
             for article in articles:
                 # Immediately set the article as read. This will allow us to
                 # skip early to the next article if the user asks to do so.
-                with WithCursor(db, db.cursor()) as cursor:
+                with WithCursor(db) as cursor:
                     cursor.execute(
                             'UPDATE articles SET read=1 WHERE link=?',
                             (article['link'],))
