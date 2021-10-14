@@ -21,7 +21,7 @@ pip install git+https://github.com/mikeevmm/jfc/
 ## How to Use
 
 `jfc` aggregates unseen articles from the specified timeframe (see the
-[configuration](##configuration) section), and displays them to you in an
+[configuration](#configuration) section), and displays them to you in an
 interactive prompt. From the title, you can choose to read the abstract, and
 from there you can choose to open the ArXiv PDF.
 
@@ -30,10 +30,10 @@ Run `jfc` to get an interactive prompt.
 ## Configuration
 
 `jfc` has some configuration parameters, which are set in the [TOML][TOML] file
-that lives in the configuration directory (as reported by [`appdirs`][appdirs].
+that lives in the configuration directory (as reported by [`appdirs`][appdirs]).
 
-Running `jfc config` will output the full directory of the configuration
-directory. Since most editors accept a path as an argument for the file to open,
+Running `jfc config` will output the full path of the configuration file.
+Since most editors accept a path as an argument for the file to open,
 this means you can quickly edit the configuration (in bash) with
 
 ```bash
