@@ -139,20 +139,22 @@ def print_header(console):
     art_width = max(
         len(ansi_regex.sub('', line)) for line in art.splitlines())
     phrase_width = len(phrase)
-    print(art_width, phrase_width)
-
-    phrase_color = random.choice(['red', 'green', 'blue', 'yellow'])
 
     global_padding = ' '*max(0,
                             (console.width - max(art_width, phrase_width))//2)
 
     if art_width > phrase_width:
         phrase_padding = ' '*max(0, (art_width - phrase_width)//2)
-        phrase = global_padding + phrase_padding + phrase
+        art_padding = ''
     elif phrase_width > art_width:
+        phrase_padding = ''
         art_padding = ' '*max(0, (phrase_width - art_width)//2)
-        art = '\n'.join(
-            (global_padding + art_padding + line) for line in art.splitlines())
+
+    phrase = global_padding + phrase_padding + phrase
+    art = '\n'.join(
+        (global_padding + art_padding + line) for line in art.splitlines())
     
     print(art) # Using console.print here messes up the ANSI escapes
+
+    phrase_color = random.choice(['red', 'green', 'blue', 'yellow'])
     console.print('[' + phrase_color + ']' + phrase + '[/' + phrase_color + ']')
