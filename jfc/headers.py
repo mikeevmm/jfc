@@ -1,66 +1,67 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import re
 import random
 import rich
 
 ART = [
 '''\
-                                .ed"""" """$$$$be.
-                              -"           ^""**$$$e.
-                            ."                   '$$$c
-                           /                      "4$$b
-                          d  3                      $$$$
-                          $  *                   .$$$$$$
-                         .$  ^c           $$$$$e$$$$$$$$.
-                         d$L  4.         4$$$$$$$$$$$$$$b
-                         $$$$b ^ceeeee.  4$$ECL.F*$$$$$$$
-             e$""=.      $$$$P d$$$$F $ $$$$$$$$$- $$$$$$
-            z$$b. ^c     3$$$F "$$$$b   $"$$$$$$$  $$$$*"      .=""$c
-           4$$$$L        $$P"  "$$b   .$ $$$$$...e$$        .=  e$$$.
-           ^*$$$$$c  %..   *c    ..    $$ 3$$$$$$$$$$eF     zP  d$$$$$
-             "**$$$ec   "   %ce""    $$$  $$$$$$$$$$*    .r" =$$$$P""
-                   "*$b.  "c  *$e.    *** d$$$$$"L$$    .d"  e$$***"
-                     ^*$$c ^$c $$$      4J$$$$$% $$$ .e*".eeP"
-                        "$$$$$$"'$=e....$*$$**$cz$$" "..d$*"
-                          "*$$$  *=%4.$ L L$ P3$$$F $$$P"
-                             "$   "%*ebJLzb$e$$$$$b $P"
-                               %..      4$$$$$$$$$$ "
-                                $$$e   z$$$$$$$$$$%
-                                 "*$c  "$$$$$$$P"
-                                  ."""*$$$$$$$$bc
-                               .-"    .$***$$$"""*e.
-                            .-"    .e$"     "*$c  ^*b.
-                     .=*""""    .e$*"          "*bc  "*$e..
-                   .$"        .z*"               ^*$e.   "*****e.
-                   $$ee$c   .d"                     "*$.        3.
-                   ^*$E")$..$"                         *   .ee==d%
-                      $.d$$$*                           *  J$$$e*
-                       """""                              "$$$"
+                     .ed"""" """$$$$be.
+                   -"           ^""**$$$e.
+                 ."                   '$$$c
+                /                      "4$$b
+               d  3                      $$$$
+               $  *                   .$$$$$$
+              .$  ^c           $$$$$e$$$$$$$$.
+              d$L  4.         4$$$$$$$$$$$$$$b
+              $$$$b ^ceeeee.  4$$ECL.F*$$$$$$$
+  e$""=.      $$$$P d$$$$F $ $$$$$$$$$- $$$$$$
+ z$$b. ^c     3$$$F "$$$$b   $"$$$$$$$  $$$$*"      .=""$c
+4$$$$L        $$P"  "$$b   .$ $$$$$...e$$        .=  e$$$.
+^*$$$$$c  %..   *c    ..    $$ 3$$$$$$$$$$eF     zP  d$$$$$
+  "**$$$ec   "   %ce""    $$$  $$$$$$$$$$*    .r" =$$$$P""
+        "*$b.  "c  *$e.    *** d$$$$$"L$$    .d"  e$$***"
+          ^*$$c ^$c $$$      4J$$$$$% $$$ .e*".eeP"
+             "$$$$$$"'$=e....$*$$**$cz$$" "..d$*"
+               "*$$$  *=%4.$ L L$ P3$$$F $$$P"
+                  "$   "%*ebJLzb$e$$$$$b $P"
+                    %..      4$$$$$$$$$$ "
+                     $$$e   z$$$$$$$$$$%
+                      "*$c  "$$$$$$$P"
+                       ."""*$$$$$$$$bc
+                    .-"    .$***$$$"""*e.
+                 .-"    .e$"     "*$c  ^*b.
+          .=*""""    .e$*"          "*bc  "*$e..
+        .$"        .z*"               ^*$e.   "*****e.
+        $$ee$c   .d"                     "*$.        3.
+        ^*$E")$..$"                         *   .ee==d%
+           $.d$$$*                           *  J$$$e*
+            """""                              "$$$"
 ''',
 '''\
-                    .... NO! ...                  ... MNO! ...
-                  ..... MNO!! ...................... MNNOO! ...
-                ..... MMNO! ......................... MNNOO!! .
-               ..... MNOONNOO!   MMMMMMMMMMPPPOII!   MNNO!!!! .
-                ... !O! NNO! MMMMMMMMMMMMMPPPOOOII!! NO! ....
-                   ...... ! MMMMMMMMMMMMMPPPPOOOOIII! ! ...
-                  ........ MMMMMMMMMMMMPPPPPOOOOOOII!! .....
-                  ........ MMMMMOOOOOOPPPPPPPPOOOOMII! ...
-                   ....... MMMMM..    OPPMMP    .,OMI! ....
-                    ...... MMMM::   o.,OPMP,.o   ::I!! ...
-                        .... NNM:::.,,OOPM!P,.::::!! ....
-                         .. MMNNNNNOOOOPMO!!IIPPO!!O! .....
-                        ... MMMMMNNNNOO:!!:!!IPPPPOO! ....
-                          .. MMMMMNNOOMMNNIIIPPPOO!! ......
-                         ...... MMMONNMMNNNIIIOO!..........
-                      ....... MN MOMMMNNNIIIIIO! OO ..........
-                   ......... MNO! IiiiiiiiiiiiI OOOO ...........
-                 ...... NNN.MNO! . O!!!!!!!!!O . OONO NO! ........
-                  .... MNNNNNO! ...OOOOOOOOOOO .  MMNNON!........
-                  ...... MNNNNO! .. PPPPPPPPP .. MMNON!........
-                     ...... OO! ................. ON! .......
-                        ................................
+     .... NO! ...                  ... MNO! ...
+   ..... MNO!! ...................... MNNOO! ...
+ ..... MMNO! ......................... MNNOO!! .
+..... MNOONNOO!   MMMMMMMMMMPPPOII!   MNNO!!!! .
+ ... !O! NNO! MMMMMMMMMMMMMPPPOOOII!! NO! ....
+    ...... ! MMMMMMMMMMMMMPPPPOOOOIII! ! ...
+   ........ MMMMMMMMMMMMPPPPPOOOOOOII!! .....
+   ........ MMMMMOOOOOOPPPPPPPPOOOOMII! ...
+    ....... MMMMM..    OPPMMP    .,OMI! ....
+     ...... MMMM::   o.,OPMP,.o   ::I!! ...
+         .... NNM:::.,,OOPM!P,.::::!! ....
+          .. MMNNNNNOOOOPMO!!IIPPO!!O! .....
+         ... MMMMMNNNNOO:!!:!!IPPPPOO! ....
+           .. MMMMMNNOOMMNNIIIPPPOO!! ......
+          ...... MMMONNMMNNNIIIOO!..........
+       ....... MN MOMMMNNNIIIIIO! OO ..........
+    ......... MNO! IiiiiiiiiiiiI OOOO ...........
+  ...... NNN.MNO! . O!!!!!!!!!O . OONO NO! ........
+   .... MNNNNNO! ...OOOOOOOOOOO .  MMNNON!........
+   ...... MNNNNO! .. PPPPPPPPP .. MMNON!........
+      ...... OO! ................. ON! .......
+         ................................
 ''',
 '''\
 [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;255m [38;5;255m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;255m [38;5;255m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m [38;5;015m
@@ -129,15 +130,29 @@ PHRASES = [
     'Why did the preprint cross the road?'
 ]
 
-def print_header():
+ansi_regex = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+
+def print_header(console):
     art = random.choice(ART)
     phrase = random.choice(PHRASES)
    
-    phrase_padding = max((80 - len(phrase)) // 2, 0)
+    art_width = max(
+        len(ansi_regex.sub('', line)) for line in art.splitlines())
+    phrase_width = len(phrase)
+    print(art_width, phrase_width)
+
     phrase_color = random.choice(['red', 'green', 'blue', 'yellow'])
 
-    print(art)
-    rich.print(
-        ' '*phrase_padding,
-        '[' + phrase_color + ']' + phrase,
-        sep='')
+    global_padding = ' '*max(0,
+                            (console.width - max(art_width, phrase_width))//2)
+
+    if art_width > phrase_width:
+        phrase_padding = ' '*max(0, (art_width - phrase_width)//2)
+        phrase = global_padding + phrase_padding + phrase
+    elif phrase_width > art_width:
+        art_padding = ' '*max(0, (phrase_width - art_width)//2)
+        art = '\n'.join(
+            (global_padding + art_padding + line) for line in art.splitlines())
+    
+    print(art) # Using console.print here messes up the ANSI escapes
+    console.print('[' + phrase_color + ']' + phrase + '[/' + phrase_color + ']')

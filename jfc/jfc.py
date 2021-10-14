@@ -68,6 +68,7 @@ def main():
     conf_dir = appdirs.user_config_dir('jfc', 'mikeevmm')
     data_dir = appdirs.user_data_dir('jfc', 'mikeevmm')
     today = datetime.datetime.today()
+    console = rich.console.Console()
     
     # Create configuration directories and files if they don't exist
     if not os.path.exists(conf_dir):
@@ -104,7 +105,7 @@ def main():
     
     # Print a header, because we're cool like that
     if conf.get('show_header', True):
-        headers.print_header()
+        headers.print_header(console)
         print('')
 
     if first_time:
@@ -279,7 +280,6 @@ def main():
         # Show the articles
 
         try:
-            console = rich.console.Console()
             for article in articles:
                 # Immediately set the article as read. This will allow us to
                 # skip early to the next article if the user asks to do so.
