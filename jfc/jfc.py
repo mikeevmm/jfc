@@ -220,7 +220,7 @@ def main():
                     
                     # Likewise, if the link is found in the database, then we've
                     # already seen this and everything older.
-                    with WithCursor(db, db.cursor()) as cursor:
+                    with WithCursor(db) as cursor:
                         query = cursor.execute(
                             'SELECT EXISTS(SELECT 1 FROM articles '
                             'WHERE link=?)',
