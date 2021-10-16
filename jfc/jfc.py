@@ -268,7 +268,7 @@ def main():
         # of the tuple corresponds to is given by the order in which the columns
         # of the table were declared. This is less than ideal, but follows from
         # the integration with SQLite.
-        with WithCursor(db, db.cursor()) as cursor:
+        with WithCursor(db) as cursor:
             query = cursor.execute('SELECT * FROM articles WHERE read = 0')
         articles = [
             {field: value for field, value in zip(
