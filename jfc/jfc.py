@@ -268,7 +268,7 @@ def main():
         # of the table were declared. This is less than ideal, but follows from
         # the integration with SQLite.
         with WithCursor(db, db.cursor()) as cursor:
-            query = cursor.execute('SELECT * FROM articles WHERE read = false')
+            query = cursor.execute('SELECT * FROM articles WHERE read = 0')
         articles = [
             {field: value for field, value in zip(
                 ('year', 'month', 'day', 'title', 'abstract', 'authors',
