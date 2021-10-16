@@ -4,9 +4,9 @@
 import sqlite3
 
 class WithCursor():
-    def __init__(self, db, cursor):
+    def __init__(self, db):
         self.db = db
-        self.cursor = cursor
+        self.cursor = db.cursor()
     
     def __enter__(self):
         return self.cursor
