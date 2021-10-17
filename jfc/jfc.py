@@ -100,6 +100,23 @@ def main():
         print(conf_path, end='')
         exit(0)
 
+    # Likes output mode?
+    if arguments['likes']:
+        with sqlite3.connect(db_path) as db:
+            with WithCursor(db) as cursor:
+                query = cursor.execute('SELECT * FROM articles WHERE liked=1')
+        articles = [
+            {field: value for field, value in zip(
+                ('year', 'month', 'day', 'title', 'abstract', 'authors',
+                    'category', 'link', 'read', 'liked'), element)}
+            for element in query]
+        for article in articles:
+            console.print('')
+            console.print(article['title'])
+            console.print(article['authors'], style='dim')
+            console.print(article['link'])
+        exit(0)
+
     # Read the settings
     with open(conf_path, 'r') as conf_file:
         conf = toml.load(conf_file)
