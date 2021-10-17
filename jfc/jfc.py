@@ -8,6 +8,7 @@ Usage:
     jfc clean db
     jfc clean config
     jfc clean all
+    jfc likes
     jfc --version
     jfc --help
 
@@ -125,7 +126,23 @@ def main():
                              authors TEXT NOT NULL,
                              category TEXT NOT NULL,
                              link TEXT NOT NULL PRIMARY KEY,
-                             read BOOLEAN)''')
+                             read INTEGER NOT NULL,
+                             liked INTEGER NOT NULL)''')
+        
+        # Backwards compatibility; if liked column does not exist,
+        # create it. There's no great way to handle this in SQL, so
+        # we just try to create the column, and ignore errors that
+        # happen if the column exists
+        with WithCursor(db) as cursor:
+            try:
+                cursor.execute(
+                        'ALTER TABLE articles '
+                        'ADD COLUMN liked INTEGER NOT NULL')
+                # No exception so far; the column was inserted, so no favorites
+                # yet!
+                cursor.execute('UPDATE articles SET liked=0')
+            except sqlite3.OperationalError:
+                pass
     
         # Prune the database of old articles
         # Prune since when?
@@ -242,9 +259,9 @@ def main():
                     cursor.executemany(
                         'INSERT INTO articles '
                         '(year, month, day, title, abstract, authors, '
-                            'category, link, read) '
+                            'category, link, read, liked) '
                         'VALUES '
-                        '(?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                        '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                         [(item['date'].year,
                           item['date'].month,
                           item['date'].day,
@@ -254,6 +271,7 @@ def main():
                           ', '.join(item['authors']),
                           item['category'],
                           item['link'],
+                          False,
                           False)
                         for item in items_to_insert])
                 
@@ -273,7 +291,7 @@ def main():
         articles = [
             {field: value for field, value in zip(
                 ('year', 'month', 'day', 'title', 'abstract', 'authors',
-                    'category', 'link', 'read'), element)}
+                    'category', 'link', 'read', 'liked'), element)}
             for element in query]
         random.shuffle(articles)
 
@@ -287,7 +305,6 @@ def main():
                     cursor.execute(
                             'UPDATE articles SET read=1 WHERE link=?',
                             (article['link'],))
-                db.commit()
 
                 # Show the article
                 console.rule()
@@ -329,19 +346,49 @@ def main():
                         console.print(line, soft_wrap=True)
                     console.print('')
 
-                    action = rich.prompt.Prompt.ask(
-                            '[bold green][N][/bold green] Next  '
-                            '[bold green][O][/bold green] Open in Browser',
-                            choices=['n', 'o', 'N', 'O'],
-                            show_choices=False, default='N').lower()
-                    print('\033[F\033[F') # Overwrite the prompt
+                    while True:
+                        # If the article is already liked, no not give the
+                        # user the option to like the article again
+                        prompt_str = '[bold green][N][/bold green] Next  '
+                        if not article['liked']:
+                            prompt_str += ('[bold green][L][/bold green] Save '
+                                            'to likes ')
+                        prompt_str += ('[bold green][O][/bold green] Open in '
+                                        'Browser')
 
-                    # Skip to the next article
-                    if action == 'n':
-                        continue
+                        prompt_choices = ['n', 'o', 'N', 'O']
+                        if not article['liked']:
+                            prompt_choices += ['l', 'L']
 
-                    # Otherwise, open the article in the browser, and continue.
-                    webbrowser.open(article['link'])
+                        action = rich.prompt.Prompt.ask(
+                                prompt_str,
+                                choices=prompt_choices,
+                                show_choices=False, default='N').lower()
+                        print('\033[F\033[F') # Overwrite the prompt
+
+                        continue_to_next = False
+                        if action == 'n':
+                            # Skip to the next article
+                            continue_to_next = True
+                        elif action == 'l':
+                            # Set this article as liked
+                            with WithCursor(db) as cursor:
+                                cursor.execute(
+                                    'UPDATE articles SET liked=1 WHERE link=?',
+                                    (article['link'],))
+                            article['liked'] = True
+
+                            # Clean the old prompt
+                            print(' '*console.width, '\033[F', end='')
+                            continue # Re-prompt the user
+                        else:   
+                            # Otherwise, open the article in the browser,
+                            # and continue.
+                            webbrowser.open(article['link'])
+                            continue_to_next = True
+
+                        if continue_to_next:
+                            break # out of prompt loop
 
         except KeyboardInterrupt:
             exit(0)
