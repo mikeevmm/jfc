@@ -137,11 +137,8 @@ def main():
             try:
                 cursor.execute(
                         'ALTER TABLE articles '
-                        'ADD COLUMN liked INTEGER NOT NULL')
-                # No exception so far; the column was inserted, so no favorites
-                # yet!
-                cursor.execute('UPDATE articles SET liked=0')
-            except sqlite3.OperationalError:
+                        'ADD COLUMN liked INTEGER NOT NULL DEFAULT 0')
+            except sqlite3.OperationalError as e:
                 pass
     
         # Prune the database of old articles
