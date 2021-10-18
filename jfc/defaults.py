@@ -4,6 +4,7 @@
 SETTINGS = '''
 span = 7
 show_header = true
+browser_from_title = false
 
 [categories]
 quant-ph = true

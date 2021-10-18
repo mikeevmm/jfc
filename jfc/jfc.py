@@ -279,6 +279,15 @@ def main():
         # Show the articles
 
         try:
+            # The prompt at title level is different depending on user options
+            title_level_choices = ['n', 'a', 'N', 'A']
+            title_level_prompt = '[bold green][N][/bold green] Next  '
+            if conf.get('browser_from_title', False):
+                title_level_choices += ['o', 'O']
+                title_level_prompt += (
+                        '[bold green][O][/bold green] Open in browser  ')
+            title_level_prompt += '[bold green][A][/bold green] Show abstract '
+
             for article in articles:
                 # Immediately set the article as read. This will allow us to
                 # skip early to the next article if the user asks to do so.
@@ -300,14 +309,19 @@ def main():
                 console.print('')
                     
                 action = rich.prompt.Prompt.ask(
-                        '[bold green][N][/bold green] Next  '
-                        '[bold green][A][/bold green] Show abstract ',
-                        choices=['n', 'a', 'N', 'A'], default='N',
+                        title_level_prompt,
+                        choices=title_level_choices, default='N',
                         show_choices=False).lower()
                 print('\033[F\033[F') # Overwrite the prompt
 
                 # Skip to next article
                 if action == 'n':
+                    continue
+
+                # Open in browser and continue
+                # (The abstract will be in the ArXiv page)
+                if action == 'o':
+                    webbrowser.open(article['link'])
                     continue
                 
                 # Otherwise, show the abstract; do this in a separate screen
@@ -328,7 +342,7 @@ def main():
                     console.print('')
 
                     action = rich.prompt.Prompt.ask(
-                            '[bold green][N][/bold green] Next '
+                            '[bold green][N][/bold green] Next  '
                             '[bold green][O][/bold green] Open in Browser',
                             choices=['n', 'o', 'N', 'O'],
                             show_choices=False, default='N').lower()
