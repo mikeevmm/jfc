@@ -163,7 +163,8 @@ def main():
             #  the ArXiv query.
             categories = [cat for cat in CATEGORY_KEYS
                             if conf.get('categories', {}).get(cat, False)]
-            
+            page_size = 200
+
             # Connection errors are caught, because even if ArXiv is done, the
             # cached items are still usable.
             try:
@@ -174,9 +175,8 @@ def main():
                     'Something went wrong on the ArXiv end of things. '
                     '(ArXiv is likely down.) '
                     'Please try again later.')
-                break
+                query = []
 
-            page_size = 200
             for i, results_page in enumerate(query):
                 spinner.text = (random.choice([
                     'Perusing ArXiv...',
