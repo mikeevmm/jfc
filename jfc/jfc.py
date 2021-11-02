@@ -127,6 +127,13 @@ def main():
                              link TEXT NOT NULL PRIMARY KEY,
                              read INTEGER NOT NULL)''')
         
+        # BACKWARDS COMPATIBILITY: As of post-1.4.0, the `crossposts` option may
+        # require knowing whether a publication is a crosspost. As part of
+        # backwards compatibility, we assume that any article already in the
+        # database is NOT a crosspost.
+        with WithCursor(db) as cursor:
+            pass
+        
         # Prune the database of old articles
         # Prune since when?
         conf_delta = conf.get('span', 7) + 1
@@ -164,6 +171,14 @@ def main():
             categories = [cat for cat in CATEGORY_KEYS
                             if conf.get('categories', {}).get(cat, False)]
             
+            # The way to detect cross-posting with the arXiv API is to poll a
+            # specific category and then detect if each publication's
+            # `primary_category` matches the polled category. Because there is
+            # a 3 second delay between polls to honor, this means that having to
+            # detect crossposts will induce a greater delay (as opposed to
+            # polling the API for all categories at once).
+            # Therefore, we switch modes depending on whether we need to exclude
+            # crossposts or not.
             page_size = 200
             for i, results_page in enumerate(arxiv.query(
                                         categories, page_size=page_size)):
