@@ -274,7 +274,11 @@ def main():
                 ('year', 'month', 'day', 'title', 'abstract', 'authors',
                     'category', 'link', 'read'), element)}
             for element in query]
-        random.shuffle(articles)
+
+
+        # As of 1.4.0, shuffling is optional and controlled by preferences.
+        if conf.get('shuffle', 'True'):
+            random.shuffle(articles)
 
         # Show the articles
 

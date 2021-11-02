@@ -63,6 +63,7 @@ mv "$(jfc config).old" "$(jfc config)"
  * `show_header` Whether to be boring (`false`) or not (`true`) [Default: true]
  * `browser_from_title` Whether to have the option to open the article in the
     browser immediately from the title [Default: False]
+ * `shuffle` Whether to present the unread papers in a shuffled order (`true`), or in the order that they were indexed (`false`) [Default: True]
  * `[categories]` Set each item below it to `true` to include it in the ArXiv
     search. Every element defaults to `false`, except `quant-ph`, which defaults
     to `true`.
