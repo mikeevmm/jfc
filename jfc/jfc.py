@@ -163,10 +163,21 @@ def main():
             #  the ArXiv query.
             categories = [cat for cat in CATEGORY_KEYS
                             if conf.get('categories', {}).get(cat, False)]
-            
             page_size = 200
-            for i, results_page in enumerate(arxiv.query(
-                                        categories, page_size=page_size)):
+
+            # Connection errors are caught, because even if ArXiv is done, the
+            # cached items are still usable.
+            try:
+                query = arxiv.query(categories, page_size=page_size)
+            except ConnectionError:
+                # ArXiv is likely down. Report to the user, but keep going.
+                spinner.fail(
+                    'Something went wrong on the ArXiv end of things. '
+                    '(ArXiv is likely down.) '
+                    'Please try again later.')
+                query = []
+
+            for i, results_page in enumerate(query):
                 spinner.text = (random.choice([
                     'Perusing ArXiv...',
                     'Eyeing articles...',
@@ -184,8 +195,9 @@ def main():
                 if results_page['bozo'] == True:
                     spinner.fail(
                         'Something went wrong on the ArXiv end of things. '
+                        '(We got a bad response from the ArXiv API.) '
                         'Please try again later.')
-                    exit(1)
+                    break
 
                 items_to_insert = []
 
