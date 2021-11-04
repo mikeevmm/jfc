@@ -30,6 +30,7 @@ import rich
 import rich.console
 import rich.prompt
 import webbrowser
+import itertools
 import jfc.version as version
 import jfc.headers as headers
 import jfc.defaults as defaults
@@ -124,15 +125,26 @@ def main():
                              abstract TEXT NOT NULL,
                              authors TEXT NOT NULL,
                              category TEXT NOT NULL,
+                             crosspost INTEGER,
                              link TEXT NOT NULL PRIMARY KEY,
                              read INTEGER NOT NULL)''')
         
-        # BACKWARDS COMPATIBILITY: As of post-1.4.0, the `crossposts` option may
-        # require knowing whether a publication is a crosspost. As part of
-        # backwards compatibility, we assume that any article already in the
-        # database is NOT a crosspost.
+        # BACKWARDS COMPATIBILITY: As of the introduction of the `crossposts`
+        # options, these may require knowing whether a publication is a
+        # crosspost. As part of backwards compatibility, we assume that any
+        # article already in the database is NOT a crosspost.
         with WithCursor(db) as cursor:
-            pass
+            # Check if the column exists
+            try:
+                cursor.execute('ALTER TABLE articles '
+                               'ADD COLUMN crosspost INTEGER')
+                # The column did not exist.
+                # The column will be added with null values. This is intended,
+                # and will signal that we don't know whether the existing
+                # publications are crossposts or not.
+            except sqlite3.ProgrammingError:
+                # The column already existed.
+                pass
         
         # Prune the database of old articles
         # Prune since when?
@@ -157,21 +169,45 @@ def main():
             date = datetime.date(day=day, month=month, year=year)
             if last_published is None or date > last_published:
                 last_published = date
-        
+
+        # Detection of crossposts needs more operations; if there are crosspost
+        # related options active, and there are unclassified publications,
+        # we still need to poll ArXiv.
+
         # (articles are published on yesterday's midnight; this is parsed as
         #   yesterday)
-        if (last_published is not None and
-            last_published == today_date - datetime.timedelta(days=1)):
+        db_up_to_date = (last_published is not None and
+            last_published == today_date - datetime.timedelta(days=1))
+        
+        crosspost_conf = conf.get('crossposts', {})
+        crossposts_include = crosspost_conf.get('include', True)
+        crossposts_highlight = crosspost_conf.get('highlight', False)
+        crossposts_needed = (not crossposts_include or crossposts_highligh)
+        
+        if db_up_to_date and not crossposts_needed:
             # No need to poll the API again
             pass
         else:
             # Poll the ArXiv API
-            # We're very explicit here to make sure we don't send garbage into
-            #  the ArXiv query.
+            # We're very explicit where possible to make sure we don't send 
+            #  garbage into the ArXiv query.
+
             categories = [cat for cat in CATEGORY_KEYS
                             if conf.get('categories', {}).get(cat, False)]
-<<<<<<< HEAD
-            
+            page_size = 200
+            arxiv_poll_phrases = [
+                'Perusing ArXiv...',
+                'Eyeing articles...',
+                'Contacting Reviewer #2...',
+                'Checking out the math...',
+                'Contacting the corresponding author...',
+                'Commenting publication...',
+                'Skipping to the conclusions...',
+                'Recompiling LaTeX...',
+                'Calling the arXiv API... (no, really)',
+                'Wow, this is taking a while?',
+                'Reading the abstract only...']
+
             # The way to detect cross-posting with the arXiv API is to poll a
             # specific category and then detect if each publication's
             # `primary_category` matches the polled category. Because there is
@@ -180,117 +216,18 @@ def main():
             # polling the API for all categories at once).
             # Therefore, we switch modes depending on whether we need to exclude
             # crossposts or not.
-=======
->>>>>>> dev
-            page_size = 200
+            if crossposts_needed:
+                success = update_crossposts(
+                    categories, page_size, spinner, db, arxiv_poll_phrases)
+            else:
+                success = update_no_crossposts(
+                    categories, page_size, spinner, db, arxiv_poll_phrases)
 
-            # Connection errors are caught, because even if ArXiv is done, the
-            # cached items are still usable.
-            try:
-                query = arxiv.query(categories, page_size=page_size)
-            except ConnectionError:
-                # ArXiv is likely down. Report to the user, but keep going.
-                spinner.fail(
-                    'Something went wrong on the ArXiv end of things. '
-                    '(ArXiv is likely down.) '
-                    'Please try again later.')
-                query = []
+            if success:
+                spinner.succeed('Done.')
+            else:
+                pass # An error specific message was already emitted.
 
-            for i, results_page in enumerate(query):
-                spinner.text = (random.choice([
-                    'Perusing ArXiv...',
-                    'Eyeing articles...',
-                    'Contacting Reviewer #2...',
-                    'Checking out the math...',
-                    'Contacting the corresponding author...',
-                    'Commenting publication...',
-                    'Skipping to the conclusions...',
-                    'Recompiling LaTeX...',
-                    'Calling the arXiv API... (no, really)',
-                    'Wow, this is taking a while?',
-                    'Reading the abstract only...'])
-                    + ' (' + str(i*page_size) + ')')
-
-                if results_page['bozo'] == True:
-                    spinner.fail(
-                        'Something went wrong on the ArXiv end of things. '
-                        '(We got a bad response from the ArXiv API.) '
-                        'Please try again later.')
-                    break
-
-                items_to_insert = []
-
-                finished = False
-                for entry in results_page['entries']:
-                    item = {
-                        'link': entry['link'],
-                        'date': datetime.datetime(
-                            *entry['published_parsed'][:6]).date(),
-                        'title': ' '.join(line.strip()
-                            for line in entry['title'].splitlines()),
-                        'abstract': entry['summary'],
-                        'authors': [
-                            author['name'] for author in entry['authors']],
-                        'category': entry['arxiv_primary_category']['term']
-                    }
-
-                    # Results are sorted by update date from newest to oldest,
-                    # so if we're looking at dates older than the pruning date
-                    # we can abort.
-                    if item['date'] < prune_since:
-                        # However, if this is an item that has appeared because
-                        # its update date is recent, we continue scanning the
-                        # list.
-                        update_date = datetime.datetime(
-                            *entry['updated_parsed'][:6]).date()
-                        if update_date >= prune_since:
-                            continue
-
-                        finished = True
-                        break
-                    
-                    # Likewise, if the link is found in the database, then we've
-                    # already seen this and everything older.
-                    with WithCursor(db) as cursor:
-                        query = cursor.execute(
-                            'SELECT EXISTS(SELECT 1 FROM articles '
-                            'WHERE link=?)',
-                            (item['link'],))
-                    seen = False
-                    for value in query:
-                        if value != (0,):
-                            seen = True
-                    if seen:
-                        finished = True
-                        break 
-                    
-                    # Otherwise, push this item into the database
-                    # We can batch-execute queries/inserts into the SQL database,
-                    # so we postpone this to the end of the loop.
-                    items_to_insert.append(item)
-                
-                with WithCursor(db) as cursor:
-                    cursor.executemany(
-                        'INSERT INTO articles '
-                        '(year, month, day, title, abstract, authors, '
-                            'category, link, read) '
-                        'VALUES '
-                        '(?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                        [(item['date'].year,
-                          item['date'].month,
-                          item['date'].day,
-                          item['title'],
-                          ' '.join(line.strip()
-                            for line in item['abstract'].splitlines()),
-                          ', '.join(item['authors']),
-                          item['category'],
-                          item['link'],
-                          False)
-                        for item in items_to_insert])
-                
-                if finished:
-                    spinner.succeed('Done.')
-                    break
     
     with sqlite3.connect(db_path) as db:
         # Get all the articles that haven't been read yet
@@ -299,13 +236,17 @@ def main():
         # of the table were declared. This is less than ideal, but follows from
         # the integration with SQLite.
         with WithCursor(db) as cursor:
-            query = cursor.execute('SELECT * FROM articles WHERE read = 0')
+            query = 'SELECT * FROM articles WHERE read = 0'
+            if not crossposts_include:
+                # Note that we use != 1, rather than = 0, to include NULLs
+                query += ' AND crosspost != 1'
+            query = cursor.execute(query)
+
         articles = [
             {field: value for field, value in zip(
                 ('year', 'month', 'day', 'title', 'abstract', 'authors',
-                    'category', 'link', 'read'), element)}
+                    'category', 'crosspost', 'link', 'read'), element)}
             for element in query]
-
 
         # As of 1.4.0, shuffling is optional and controlled by preferences.
         if conf.get('shuffle', 'True'):
@@ -391,7 +332,110 @@ def main():
                     # and continue.
                     webbrowser.open(article['link'])
 
-        except KeyboardInterrupt:
+        except KeyboardInterrupt or EOFError:
             exit(0)
 
     rich.print('[green]:heavy_check_mark: All caught up![/green]')
+
+
+def update_no_crossposts(
+        categories, page_size, spinner, db, arxiv_poll_phrases):
+    # Connection errors are caught, because even if ArXiv is down, the
+    # cached items are still usable.
+    try:
+        query = arxiv.query(categories, page_size=page_size)
+    except ConnectionError:
+        # ArXiv is likely down. Report to the user, but keep going.
+        spinner.fail(
+            'Something went wrong on the ArXiv end of things. '
+            '(ArXiv is likely down.) '
+            'Please try again later.')
+        query = []
+
+    for i, results_page in enumerate(query):
+        spinner.text = (random.choice(arxiv_poll_phrases) 
+                        + ' (' + str(i*page_size) + ' seen...)')
+
+        if results_page['bozo'] == True:
+            spinner.fail(
+                'Something went wrong on the ArXiv end of things. '
+                '(We got a bad response from the ArXiv API.) '
+                'Please try again later.')
+            return False
+
+        items_to_insert = []
+
+        finished = False
+        for entry in results_page['entries']:
+            item = {
+                'link': entry['link'],
+                'date': datetime.datetime(
+                    *entry['published_parsed'][:6]).date(),
+                'title': ' '.join(line.strip()
+                    for line in entry['title'].splitlines()),
+                'abstract': entry['summary'],
+                'authors': [
+                    author['name'] for author in entry['authors']],
+                'category': entry['arxiv_primary_category']['term']
+            }
+
+            # Results are sorted by update date from newest to oldest,
+            # so if we're looking at dates older than the pruning date
+            # we can abort.
+            if item['date'] < prune_since:
+                # However, if this is an item that has appeared because
+                # its update date is recent, we continue scanning the
+                # list.
+                update_date = datetime.datetime(
+                    *entry['updated_parsed'][:6]).date()
+                if update_date >= prune_since:
+                    continue
+
+                finished = True
+                break
+            
+            # Likewise, if the link is found in the database, then we've
+            # already seen this and everything older.
+            with WithCursor(db) as cursor:
+                query = cursor.execute(
+                    'SELECT EXISTS(SELECT 1 FROM articles '
+                    'WHERE link=?)', (item['link'],))
+            seen = False
+            for value in query:
+                if value != (0,):
+                    seen = True
+            if seen:
+                finished = True
+                break 
+            
+            # Otherwise, push this item into the database
+            # We can batch-execute queries/inserts into the SQL database,
+            # so we postpone this to the end of the loop.
+            items_to_insert.append(item)
+        
+        with WithCursor(db) as cursor:
+            cursor.executemany(
+                'INSERT INTO articles '
+                '(year, month, day, title, abstract, authors, '
+                    'category, link, read) '
+                'VALUES '
+                '(?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [(item['date'].year,
+                  item['date'].month,
+                  item['date'].day,
+                  item['title'],
+                  ' '.join(line.strip()
+                    for line in item['abstract'].splitlines()),
+                  ', '.join(item['authors']),
+                  item['category'],
+                  item['link'],
+                  False)
+                for item in items_to_insert])
+        
+        if finished:
+            return True
+
+
+def update_crossposts(
+        categories, page_size, spinner, db, arxiv_poll_phrases):
+    pass # TODO
