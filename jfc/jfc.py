@@ -30,6 +30,7 @@ import rich
 import rich.console
 import rich.prompt
 import webbrowser
+import itertools
 import jfc.version as version
 import jfc.headers as headers
 import jfc.defaults as defaults
@@ -124,8 +125,26 @@ def main():
                              abstract TEXT NOT NULL,
                              authors TEXT NOT NULL,
                              category TEXT NOT NULL,
+                             crosslist INTEGER,
                              link TEXT NOT NULL PRIMARY KEY,
                              read INTEGER NOT NULL)''')
+        
+        # BACKWARDS COMPATIBILITY: As of the introduction of the `crosslists`
+        # options, these may require knowing whether a publication is a
+        # crosslist. As part of backwards compatibility, we assume that any
+        # article already in the database is NOT a crosslist.
+        with WithCursor(db) as cursor:
+            # Check if the column exists
+            try:
+                cursor.execute('ALTER TABLE articles '
+                               'ADD COLUMN crosslist INTEGER')
+                # The column did not exist.
+                # The column will be added with null values. This is intended,
+                # and will signal that we don't know whether the existing
+                # publications are crosslists or not.
+            except sqlite3.OperationalError:
+                # The column already existed.
+                pass
         
         # Prune the database of old articles
         # Prune since when?
@@ -150,42 +169,58 @@ def main():
             date = datetime.date(day=day, month=month, year=year)
             if last_published is None or date > last_published:
                 last_published = date
-        
+
         # (articles are published on yesterday's midnight; this is parsed as
         #   yesterday)
-        if (last_published is not None and
-            last_published == today_date - datetime.timedelta(days=1)):
+        db_up_to_date = (last_published is not None and
+            last_published == today_date - datetime.timedelta(days=1))
+        
+        if db_up_to_date:
             # No need to poll the API again
             pass
         else:
             # Poll the ArXiv API
-            # We're very explicit here to make sure we don't send garbage into
-            #  the ArXiv query.
+            # We're very explicit where possible to make sure we don't send 
+            #  garbage into the ArXiv query.
+
             categories = [cat for cat in CATEGORY_KEYS
                             if conf.get('categories', {}).get(cat, False)]
-            
             page_size = 200
-            for i, results_page in enumerate(arxiv.query(
-                                        categories, page_size=page_size)):
-                spinner.text = (random.choice([
-                    'Perusing ArXiv...',
-                    'Eyeing articles...',
-                    'Contacting Reviewer #2...',
-                    'Checking out the math...',
-                    'Contacting the corresponding author...',
-                    'Commenting publication...',
-                    'Skipping to the conclusions...',
-                    'Recompiling LaTeX...',
-                    'Calling the arXiv API... (no, really)',
-                    'Wow, this is taking a while?',
-                    'Reading the abstract only...'])
-                    + ' (' + str(i*page_size) + ')')
+            arxiv_poll_phrases = [
+                'Perusing ArXiv...',
+                'Eyeing articles...',
+                'Contacting Reviewer #2...',
+                'Checking out the math...',
+                'Contacting the corresponding author...',
+                'Commenting publication...',
+                'Skipping to the conclusions...',
+                'Recompiling LaTeX...',
+                'Calling the arXiv API... (no, really)',
+                'Wow, this is taking a while?',
+                'Reading the abstract only...']
+
+            # Connection errors are caught, because even if ArXiv is down, the
+            # cached items are still usable.
+            try:
+                query = arxiv.query(categories, page_size=page_size)
+            except ConnectionError:
+                # ArXiv is likely down. Report to the user, but keep going.
+                spinner.fail(
+                    'Something went wrong on the ArXiv end of things. '
+                    '(ArXiv is likely down.) '
+                    'Please try again later.')
+                query = []
+
+            for i, results_page in enumerate(query):
+                spinner.text = (random.choice(arxiv_poll_phrases) 
+                                + ' (' + str(i*page_size) + ' seen...)')
 
                 if results_page['bozo'] == True:
                     spinner.fail(
                         'Something went wrong on the ArXiv end of things. '
+                        '(We got a bad response from the ArXiv API.) '
                         'Please try again later.')
-                    exit(1)
+                    break
 
                 items_to_insert = []
 
@@ -223,8 +258,7 @@ def main():
                     with WithCursor(db) as cursor:
                         query = cursor.execute(
                             'SELECT EXISTS(SELECT 1 FROM articles '
-                            'WHERE link=?)',
-                            (item['link'],))
+                            'WHERE link=?)', (item['link'],))
                     seen = False
                     for value in query:
                         if value != (0,):
@@ -234,10 +268,12 @@ def main():
                         break 
                     
                     # Otherwise, push this item into the database
-                    # We can batch-execute queries/inserts into the SQL database,
+                    # We can batch-execute queries/inserts into the SQL database
                     # so we postpone this to the end of the loop.
                     items_to_insert.append(item)
                 
+                # Note that crossposts are left as NULL. This is on purpose and
+                # addressed later.
                 with WithCursor(db) as cursor:
                     cursor.executemany(
                         'INSERT INTO articles '
@@ -260,6 +296,26 @@ def main():
                 if finished:
                     spinner.succeed('Done.')
                     break
+
+            # Categorize publications as cross-listings or not.
+            # Even if a given publication was downloaded from category A as a 
+            # cross-listing of category B, if we are also subscribed to category
+            # B the publication would've been downloaded anyway.
+            # Therefore, the only criterion for whether a publication is a
+            # cross-listing is whether it belongs to any category to which we
+            # are not subscribed.
+            with WithCursor(db) as cursor:
+                query = db.execute('SELECT link, category FROM articles '
+                                   'WHERE crosslist IS NULL')
+            
+            groups = itertools.groupby(query, key=lambda x: x[1])
+            
+            with WithCursor(db) as cursor:
+                for category, group in groups:
+                    cursor.executemany(
+                        'UPDATE articles SET crosslist = ? WHERE link = ?',
+                        [((0 if category in categories else 1), link)
+                         for link, _ in group])
     
     with sqlite3.connect(db_path) as db:
         # Get all the articles that haven't been read yet
@@ -267,14 +323,26 @@ def main():
         # of the tuple corresponds to is given by the order in which the columns
         # of the table were declared. This is less than ideal, but follows from
         # the integration with SQLite.
+        crosslist_conf = conf.get('crosslists', {})
+        crosslists_include = crosslist_conf.get('include', True)
+        crosslists_highlight = crosslist_conf.get('highlight', False)
+
+        fields = ('year', 'month', 'day', 'title', 'abstract', 'authors',
+                    'category', 'crosslist', 'link', 'read')
+
         with WithCursor(db) as cursor:
-            query = cursor.execute('SELECT * FROM articles WHERE read = 0')
+            query = f'SELECT {", ".join(fields)} FROM articles WHERE read = 0'
+            if not crosslists_include:
+                query += ' AND crosslist != 1'
+            query = cursor.execute(query)
+
         articles = [
-            {field: value for field, value in zip(
-                ('year', 'month', 'day', 'title', 'abstract', 'authors',
-                    'category', 'link', 'read'), element)}
+            {field: value for field, value in zip(fields, element)}
             for element in query]
-        random.shuffle(articles)
+
+        # As of 1.4.0, shuffling is optional and controlled by preferences.
+        if conf.get('shuffle', 'True'):
+            random.shuffle(articles)
 
         # Show the articles
 
@@ -306,6 +374,10 @@ def main():
                     article['authors'], width=console.width):
                     console.print(line, justify='center', style='dim')
                 console.print(article['link'], justify='center', style='dim')
+                if crosslists_highlight and article['crosslist']:
+                    console.print(
+                        f'({article["category"]} cross-listing)',
+                        justify='center', style='bold')
                 console.print('')
                     
                 action = rich.prompt.Prompt.ask(
@@ -335,6 +407,10 @@ def main():
                         console.print(line, justify='center', style='dim')
                     console.print(
                         article['link'], justify='center', style='dim')
+                    if crosslists_highlight and article['crosslist']:
+                        console.print(
+                            f'({article["category"]} cross-listing)',
+                            justify='center', style='bold')
                     console.print('\n')
                     for line in textwrap.wrap(
                         article['abstract'], width=console.width):
@@ -356,7 +432,8 @@ def main():
                     # and continue.
                     webbrowser.open(article['link'])
 
-        except KeyboardInterrupt:
+        except KeyboardInterrupt or EOFError:
             exit(0)
 
     rich.print('[green]:heavy_check_mark: All caught up![/green]')
+
