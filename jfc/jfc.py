@@ -142,7 +142,7 @@ def main():
                 # The column will be added with null values. This is intended,
                 # and will signal that we don't know whether the existing
                 # publications are crosslists or not.
-            except sqlite3.ProgrammingError:
+            except sqlite3.OperationalError:
                 # The column already existed.
                 pass
         
@@ -170,21 +170,12 @@ def main():
             if last_published is None or date > last_published:
                 last_published = date
 
-        # Detection of crosslists needs more operations; if there are crosslist
-        # related options active, and there are unclassified publications,
-        # we still need to poll ArXiv.
-
         # (articles are published on yesterday's midnight; this is parsed as
         #   yesterday)
         db_up_to_date = (last_published is not None and
             last_published == today_date - datetime.timedelta(days=1))
         
-        crosslist_conf = conf.get('crosslists', {})
-        crosslists_include = crosslist_conf.get('include', True)
-        crosslists_highlight = crosslist_conf.get('highlight', False)
-        crosslists_needed = (not crosslists_include or crosslists_highligh)
-        
-        if db_up_to_date and not crosslists_needed:
+        if db_up_to_date:
             # No need to poll the API again
             pass
         else:
@@ -208,26 +199,123 @@ def main():
                 'Wow, this is taking a while?',
                 'Reading the abstract only...']
 
-            # The way to detect cross-listing with the arXiv API is to poll a
-            # specific category and then detect if each publication's
-            # `primary_category` matches the polled category. Because there is
-            # a 3 second delay between polls to honor, this means that having to
-            # detect crosslists will induce a greater delay (as opposed to
-            # polling the API for all categories at once).
-            # Therefore, we switch modes depending on whether we need to exclude
-            # crosslists or not.
-            if crosslists_needed:
-                success = update_crosslists(
-                    categories, page_size, spinner, db, arxiv_poll_phrases)
-            else:
-                success = update_no_crosslists(
-                    categories, page_size, spinner, db, arxiv_poll_phrases)
+            # Connection errors are caught, because even if ArXiv is down, the
+            # cached items are still usable.
+            try:
+                query = arxiv.query(categories, page_size=page_size)
+            except ConnectionError:
+                # ArXiv is likely down. Report to the user, but keep going.
+                spinner.fail(
+                    'Something went wrong on the ArXiv end of things. '
+                    '(ArXiv is likely down.) '
+                    'Please try again later.')
+                query = []
 
-            if success:
-                spinner.succeed('Done.')
-            else:
-                pass # An error specific message was already emitted.
+            for i, results_page in enumerate(query):
+                spinner.text = (random.choice(arxiv_poll_phrases) 
+                                + ' (' + str(i*page_size) + ' seen...)')
 
+                if results_page['bozo'] == True:
+                    spinner.fail(
+                        'Something went wrong on the ArXiv end of things. '
+                        '(We got a bad response from the ArXiv API.) '
+                        'Please try again later.')
+                    break
+
+                items_to_insert = []
+
+                finished = False
+                for entry in results_page['entries']:
+                    item = {
+                        'link': entry['link'],
+                        'date': datetime.datetime(
+                            *entry['published_parsed'][:6]).date(),
+                        'title': ' '.join(line.strip()
+                            for line in entry['title'].splitlines()),
+                        'abstract': entry['summary'],
+                        'authors': [
+                            author['name'] for author in entry['authors']],
+                        'category': entry['arxiv_primary_category']['term']
+                    }
+
+                    # Results are sorted by update date from newest to oldest,
+                    # so if we're looking at dates older than the pruning date
+                    # we can abort.
+                    if item['date'] < prune_since:
+                        # However, if this is an item that has appeared because
+                        # its update date is recent, we continue scanning the
+                        # list.
+                        update_date = datetime.datetime(
+                            *entry['updated_parsed'][:6]).date()
+                        if update_date >= prune_since:
+                            continue
+
+                        finished = True
+                        break
+                    
+                    # Likewise, if the link is found in the database, then we've
+                    # already seen this and everything older.
+                    with WithCursor(db) as cursor:
+                        query = cursor.execute(
+                            'SELECT EXISTS(SELECT 1 FROM articles '
+                            'WHERE link=?)', (item['link'],))
+                    seen = False
+                    for value in query:
+                        if value != (0,):
+                            seen = True
+                    if seen:
+                        finished = True
+                        break 
+                    
+                    # Otherwise, push this item into the database
+                    # We can batch-execute queries/inserts into the SQL database
+                    # so we postpone this to the end of the loop.
+                    items_to_insert.append(item)
+                
+                # Note that crossposts are left as NULL. This is on purpose and
+                # addressed later.
+                with WithCursor(db) as cursor:
+                    cursor.executemany(
+                        'INSERT INTO articles '
+                        '(year, month, day, title, abstract, authors, '
+                            'category, link, read) '
+                        'VALUES '
+                        '(?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                        [(item['date'].year,
+                          item['date'].month,
+                          item['date'].day,
+                          item['title'],
+                          ' '.join(line.strip()
+                            for line in item['abstract'].splitlines()),
+                          ', '.join(item['authors']),
+                          item['category'],
+                          item['link'],
+                          False)
+                        for item in items_to_insert])
+                
+                if finished:
+                    spinner.succeed('Done.')
+                    break
+
+            # Categorize publications as cross-listings or not.
+            # Even if a given publication was downloaded from category A as a 
+            # cross-listing of category B, if we are also subscribed to category
+            # B the publication would've been downloaded anyway.
+            # Therefore, the only criterion for whether a publication is a
+            # cross-listing is whether it belongs to any category to which we
+            # are not subscribed.
+            with WithCursor(db) as cursor:
+                query = db.execute('SELECT link, category FROM articles '
+                                   'WHERE crosslist IS NULL')
+            
+            groups = itertools.groupby(query, key=lambda x: x[1])
+            
+            with WithCursor(db) as cursor:
+                for category, group in groups:
+                    cursor.executemany(
+                        'UPDATE articles SET crosslist = ? WHERE link = ?',
+                        [((0 if category in categories else 1), link)
+                         for link, _ in group])
     
     with sqlite3.connect(db_path) as db:
         # Get all the articles that haven't been read yet
@@ -235,17 +323,21 @@ def main():
         # of the tuple corresponds to is given by the order in which the columns
         # of the table were declared. This is less than ideal, but follows from
         # the integration with SQLite.
+        crosslist_conf = conf.get('crosslists', {})
+        crosslists_include = crosslist_conf.get('include', True)
+        crosslists_highlight = crosslist_conf.get('highlight', False)
+
+        fields = ('year', 'month', 'day', 'title', 'abstract', 'authors',
+                    'category', 'crosslist', 'link', 'read')
+
         with WithCursor(db) as cursor:
-            query = 'SELECT * FROM articles WHERE read = 0'
+            query = f'SELECT {", ".join(fields)} FROM articles WHERE read = 0'
             if not crosslists_include:
-                # Note that we use != 1, rather than = 0, to include NULLs
                 query += ' AND crosslist != 1'
             query = cursor.execute(query)
 
         articles = [
-            {field: value for field, value in zip(
-                ('year', 'month', 'day', 'title', 'abstract', 'authors',
-                    'category', 'crosslist', 'link', 'read'), element)}
+            {field: value for field, value in zip(fields, element)}
             for element in query]
 
         # As of 1.4.0, shuffling is optional and controlled by preferences.
@@ -282,6 +374,10 @@ def main():
                     article['authors'], width=console.width):
                     console.print(line, justify='center', style='dim')
                 console.print(article['link'], justify='center', style='dim')
+                if crosslists_highlight and article['crosslist']:
+                    console.print(
+                        f'({article["category"]} cross-listing)',
+                        justify='center', style='bold')
                 console.print('')
                     
                 action = rich.prompt.Prompt.ask(
@@ -311,6 +407,10 @@ def main():
                         console.print(line, justify='center', style='dim')
                     console.print(
                         article['link'], justify='center', style='dim')
+                    if crosslists_highlight and article['crosslist']:
+                        console.print(
+                            f'({article["category"]} cross-listing)',
+                            justify='center', style='bold')
                     console.print('\n')
                     for line in textwrap.wrap(
                         article['abstract'], width=console.width):
@@ -337,129 +437,3 @@ def main():
 
     rich.print('[green]:heavy_check_mark: All caught up![/green]')
 
-
-def update_no_crosslists(
-        categories, page_size, spinner, db, arxiv_poll_phrases):
-    # Connection errors are caught, because even if ArXiv is down, the
-    # cached items are still usable.
-    try:
-        query = arxiv.query(categories, page_size=page_size)
-    except ConnectionError:
-        # ArXiv is likely down. Report to the user, but keep going.
-        spinner.fail(
-            'Something went wrong on the ArXiv end of things. '
-            '(ArXiv is likely down.) '
-            'Please try again later.')
-        query = []
-
-    for i, results_page in enumerate(query):
-        spinner.text = (random.choice(arxiv_poll_phrases) 
-                        + ' (' + str(i*page_size) + ' seen...)')
-
-        if results_page['bozo'] == True:
-            spinner.fail(
-                'Something went wrong on the ArXiv end of things. '
-                '(We got a bad response from the ArXiv API.) '
-                'Please try again later.')
-            return False
-
-        items_to_insert = []
-
-        finished = False
-        for entry in results_page['entries']:
-            item = {
-                'link': entry['link'],
-                'date': datetime.datetime(
-                    *entry['published_parsed'][:6]).date(),
-                'title': ' '.join(line.strip()
-                    for line in entry['title'].splitlines()),
-                'abstract': entry['summary'],
-                'authors': [
-                    author['name'] for author in entry['authors']],
-                'category': entry['arxiv_primary_category']['term']
-            }
-
-            # Results are sorted by update date from newest to oldest,
-            # so if we're looking at dates older than the pruning date
-            # we can abort.
-            if item['date'] < prune_since:
-                # However, if this is an item that has appeared because
-                # its update date is recent, we continue scanning the
-                # list.
-                update_date = datetime.datetime(
-                    *entry['updated_parsed'][:6]).date()
-                if update_date >= prune_since:
-                    continue
-
-                finished = True
-                break
-            
-            # Likewise, if the link is found in the database, then we've
-            # already seen this and everything older.
-            with WithCursor(db) as cursor:
-                query = cursor.execute(
-                    'SELECT EXISTS(SELECT 1 FROM articles '
-                    'WHERE link=?)', (item['link'],))
-            seen = False
-            for value in query:
-                if value != (0,):
-                    seen = True
-            if seen:
-                finished = True
-                break 
-            
-            # Otherwise, push this item into the database
-            # We can batch-execute queries/inserts into the SQL database,
-            # so we postpone this to the end of the loop.
-            items_to_insert.append(item)
-        
-        with WithCursor(db) as cursor:
-            cursor.executemany(
-                'INSERT INTO articles '
-                '(year, month, day, title, abstract, authors, '
-                    'category, link, read) '
-                'VALUES '
-                '(?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                [(item['date'].year,
-                  item['date'].month,
-                  item['date'].day,
-                  item['title'],
-                  ' '.join(line.strip()
-                    for line in item['abstract'].splitlines()),
-                  ', '.join(item['authors']),
-                  item['category'],
-                  item['link'],
-                  False)
-                for item in items_to_insert])
-        
-        if finished:
-            return True
-
-
-def update_crosslists(
-        categories, page_size, spinner, db, arxiv_poll_phrases):
-    for category in categories:
-        # The strategy 
-
-        try:
-            query = arxiv.query([category], page_size=page_size)
-        except ConnectionError:
-            # ArXiv is likely down. Report to the user, but keep going.
-            spinner.fail(
-                'Something went wrong on the ArXiv end of things. '
-                '(ArXiv is likely down.) '
-                'Please try again later.')
-            break
-
-        for i, results_page in enumerate(query):
-            spinner.text = (random.choice(arxiv_poll_phrases) 
-                            + ' (' + str(i*page_size) + ' seen...)')
-
-            if results_page['bozo'] == True:
-                spinner.fail(
-                    'Something went wrong on the ArXiv end of things. '
-                    '(We got a bad response from the ArXiv API.) '
-                    'Please try again later.')
-                return False
-
-    pass #TODO
