@@ -125,23 +125,23 @@ def main():
                              abstract TEXT NOT NULL,
                              authors TEXT NOT NULL,
                              category TEXT NOT NULL,
-                             crosspost INTEGER,
+                             crosslist INTEGER,
                              link TEXT NOT NULL PRIMARY KEY,
                              read INTEGER NOT NULL)''')
         
-        # BACKWARDS COMPATIBILITY: As of the introduction of the `crossposts`
+        # BACKWARDS COMPATIBILITY: As of the introduction of the `crosslists`
         # options, these may require knowing whether a publication is a
-        # crosspost. As part of backwards compatibility, we assume that any
-        # article already in the database is NOT a crosspost.
+        # crosslist. As part of backwards compatibility, we assume that any
+        # article already in the database is NOT a crosslist.
         with WithCursor(db) as cursor:
             # Check if the column exists
             try:
                 cursor.execute('ALTER TABLE articles '
-                               'ADD COLUMN crosspost INTEGER')
+                               'ADD COLUMN crosslist INTEGER')
                 # The column did not exist.
                 # The column will be added with null values. This is intended,
                 # and will signal that we don't know whether the existing
-                # publications are crossposts or not.
+                # publications are crosslists or not.
             except sqlite3.ProgrammingError:
                 # The column already existed.
                 pass
@@ -170,7 +170,7 @@ def main():
             if last_published is None or date > last_published:
                 last_published = date
 
-        # Detection of crossposts needs more operations; if there are crosspost
+        # Detection of crosslists needs more operations; if there are crosslist
         # related options active, and there are unclassified publications,
         # we still need to poll ArXiv.
 
@@ -179,12 +179,12 @@ def main():
         db_up_to_date = (last_published is not None and
             last_published == today_date - datetime.timedelta(days=1))
         
-        crosspost_conf = conf.get('crossposts', {})
-        crossposts_include = crosspost_conf.get('include', True)
-        crossposts_highlight = crosspost_conf.get('highlight', False)
-        crossposts_needed = (not crossposts_include or crossposts_highligh)
+        crosslist_conf = conf.get('crosslists', {})
+        crosslists_include = crosslist_conf.get('include', True)
+        crosslists_highlight = crosslist_conf.get('highlight', False)
+        crosslists_needed = (not crosslists_include or crosslists_highligh)
         
-        if db_up_to_date and not crossposts_needed:
+        if db_up_to_date and not crosslists_needed:
             # No need to poll the API again
             pass
         else:
@@ -208,19 +208,19 @@ def main():
                 'Wow, this is taking a while?',
                 'Reading the abstract only...']
 
-            # The way to detect cross-posting with the arXiv API is to poll a
+            # The way to detect cross-listing with the arXiv API is to poll a
             # specific category and then detect if each publication's
             # `primary_category` matches the polled category. Because there is
             # a 3 second delay between polls to honor, this means that having to
-            # detect crossposts will induce a greater delay (as opposed to
+            # detect crosslists will induce a greater delay (as opposed to
             # polling the API for all categories at once).
             # Therefore, we switch modes depending on whether we need to exclude
-            # crossposts or not.
-            if crossposts_needed:
-                success = update_crossposts(
+            # crosslists or not.
+            if crosslists_needed:
+                success = update_crosslists(
                     categories, page_size, spinner, db, arxiv_poll_phrases)
             else:
-                success = update_no_crossposts(
+                success = update_no_crosslists(
                     categories, page_size, spinner, db, arxiv_poll_phrases)
 
             if success:
@@ -237,15 +237,15 @@ def main():
         # the integration with SQLite.
         with WithCursor(db) as cursor:
             query = 'SELECT * FROM articles WHERE read = 0'
-            if not crossposts_include:
+            if not crosslists_include:
                 # Note that we use != 1, rather than = 0, to include NULLs
-                query += ' AND crosspost != 1'
+                query += ' AND crosslist != 1'
             query = cursor.execute(query)
 
         articles = [
             {field: value for field, value in zip(
                 ('year', 'month', 'day', 'title', 'abstract', 'authors',
-                    'category', 'crosspost', 'link', 'read'), element)}
+                    'category', 'crosslist', 'link', 'read'), element)}
             for element in query]
 
         # As of 1.4.0, shuffling is optional and controlled by preferences.
@@ -338,7 +338,7 @@ def main():
     rich.print('[green]:heavy_check_mark: All caught up![/green]')
 
 
-def update_no_crossposts(
+def update_no_crosslists(
         categories, page_size, spinner, db, arxiv_poll_phrases):
     # Connection errors are caught, because even if ArXiv is down, the
     # cached items are still usable.
@@ -436,6 +436,30 @@ def update_no_crossposts(
             return True
 
 
-def update_crossposts(
+def update_crosslists(
         categories, page_size, spinner, db, arxiv_poll_phrases):
-    pass # TODO
+    for category in categories:
+        # The strategy 
+
+        try:
+            query = arxiv.query([category], page_size=page_size)
+        except ConnectionError:
+            # ArXiv is likely down. Report to the user, but keep going.
+            spinner.fail(
+                'Something went wrong on the ArXiv end of things. '
+                '(ArXiv is likely down.) '
+                'Please try again later.')
+            break
+
+        for i, results_page in enumerate(query):
+            spinner.text = (random.choice(arxiv_poll_phrases) 
+                            + ' (' + str(i*page_size) + ' seen...)')
+
+            if results_page['bozo'] == True:
+                spinner.fail(
+                    'Something went wrong on the ArXiv end of things. '
+                    '(We got a bad response from the ArXiv API.) '
+                    'Please try again later.')
+                return False
+
+    pass #TODO

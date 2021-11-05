@@ -65,11 +65,11 @@ mv "$(jfc config).old" "$(jfc config)"
     browser immediately from the title [Default: False]
  * `shuffle` Whether to present the unread papers in a shuffled order (`true`),
     or in the order that they were indexed (`false`) [Default: True]
- * `[crossposts]` Options relating to cross-posts. Beware that changing options
+ * `[crosslists]` Options relating to cross-lists. Beware that changing options
     is likely to make the database update slower, especially if you have
     multiple categories selected (see below)
-   + `highlight` Indicate if a given entry is a cross-post [Default: False]
-   + `include` Include cross-posted publications [Default: True]
+   + `highlight` Indicate if a given entry is a cross-list [Default: False]
+   + `include` Include cross-listed publications [Default: True]
  * `[categories]` Set each item below it to `true` to include it in the ArXiv
     search. Every element defaults to `false`, except `quant-ph`, which defaults
     to `true`.
