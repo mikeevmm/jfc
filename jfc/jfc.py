@@ -158,14 +158,25 @@ def main():
                         {'day':prune_since.day,
                          'month':prune_since.month,
                          'year':prune_since.year})
+
+        # Also prune publications from categories that are no longer selected
+        categories = [cat for cat in CATEGORY_KEYS
+                        if conf.get('categories', {}).get(cat, False)]
+
+        query = ('DELETE FROM articles WHERE ' +
+                ' AND '.join(f'category != "{category}"'
+                             for category in categories))
+        with WithCursor(db) as cursor:
+            cursor.execute(query)
         
         # Find out if we need to poll the ArXiv database again
         # (or if we have already done so today)
         last_published = None
         today_date = today.date()
         with WithCursor(db) as cursor:
-            query = cursor.execute('SELECT day, month, year FROM articles')
-        for (day, month, year) in query:
+            query = cursor.execute('SELECT day, month, year, category '
+                                   'FROM articles')
+        for (day, month, year, category) in query:
             date = datetime.date(day=day, month=month, year=year)
             if last_published is None or date > last_published:
                 last_published = date
@@ -183,8 +194,6 @@ def main():
             # We're very explicit where possible to make sure we don't send 
             #  garbage into the ArXiv query.
 
-            categories = [cat for cat in CATEGORY_KEYS
-                            if conf.get('categories', {}).get(cat, False)]
             page_size = 200
             arxiv_poll_phrases = [
                 'Perusing ArXiv...',
@@ -220,10 +229,21 @@ def main():
                         'Something went wrong on the ArXiv end of things. '
                         '(We got a bad response from the ArXiv API.) '
                         'Please try again later.')
+                    if os.environ.get('JFC_DEBUG'):
+                        print('Guru meditation:')
+                        print(results_page)
+                    break
+
+                if len(results_page['entries']) == 0:
+                    spinner.fail('Something went wrong. '
+                                  '(ArXiv returned no results for the query.) '
+                                  'Please try again later.')
+                    if os.environ.get('JFC_DEBUG'):
+                        print('Guru meditation:')
+                        print(results_page)
                     break
 
                 items_to_insert = []
-
                 finished = False
                 for entry in results_page['entries']:
                     item = {
@@ -252,6 +272,8 @@ def main():
 
                         finished = True
                         break
+
+                    print(item['date'])
                     
                     # Likewise, if the link is found in the database, then we've
                     # already seen this and everything older.
@@ -312,6 +334,7 @@ def main():
             
             with WithCursor(db) as cursor:
                 for category, group in groups:
+                    category = arxiv.simplify_category(category)
                     cursor.executemany(
                         'UPDATE articles SET crosslist = ? WHERE link = ?',
                         [((0 if category in categories else 1), link)
