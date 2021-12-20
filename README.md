@@ -92,6 +92,11 @@ mv "$(jfc config).old" "$(jfc config)"
    + `q-fin`
    + `stat`
 
+## Debugging
+
+Setting the environment variable `JFC_DEBUG` to `1` will give more information
+on crashes, if any is available.
+
 ## Contributing
 
 Pull requests are welcome. Issues are not guaranteed to be addressed. `jfc` is

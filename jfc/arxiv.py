@@ -36,3 +36,6 @@ def query(categories, page_size=40):
         # We honor the ArXiv documentation in the 3 second delay between requests
         time.sleep(3)
 
+
+def simplify_category(category):
+    return category[:category.find('.')]
