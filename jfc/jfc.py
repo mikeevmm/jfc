@@ -148,7 +148,7 @@ def main():
         
         # Prune the database of old articles
         # Prune since when?
-        conf_delta = conf.get('span', 7) + 1
+        conf_delta = conf.get('span', 7)
         prune_since = (today - datetime.timedelta(days=conf_delta)).date()
 
         with WithCursor(db) as cursor:
