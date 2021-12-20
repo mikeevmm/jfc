@@ -324,19 +324,17 @@ def main():
             # Therefore, the only criterion for whether a publication is a
             # cross-listing is whether it belongs to any category to which we
             # are not subscribed.
+            # UPDATE (1.5.2): Always just update the cross-listing status of
+            #  everything at start-up. It's fast, requires only four queries,
+            #  and deals with edge cases such as the configuration having been
+            #  changed since the value was set.
             with WithCursor(db) as cursor:
-                query = db.execute('SELECT link, category FROM articles '
-                                   'WHERE crosslist IS NULL')
-            
-            groups = itertools.groupby(query, key=lambda x: x[1])
-            
-            with WithCursor(db) as cursor:
-                for category, group in groups:
-                    category = arxiv.simplify_category(category)
-                    cursor.executemany(
-                        'UPDATE articles SET crosslist = ? WHERE link = ?',
-                        [((0 if category in categories else 1), link)
-                         for link, _ in group])
+                db.execute('UPDATE articles SET crosslist = 0 '
+                           'WHERE category IN '
+                           '(' + ', '.join(f'"{x}"' for x in categories) + ')')
+                db.execute('UPDATE articles SET crosslist = 1 '
+                           'WHERE category NOT IN '
+                           '(' + ', '.join(f'"{x}"' for x in categories) + ')')
     
     with sqlite3.connect(db_path) as db:
         # Get all the articles that haven't been read yet
