@@ -273,8 +273,6 @@ def main():
                         finished = True
                         break
 
-                    print(item['date'])
-                    
                     # Likewise, if the link is found in the database, then we've
                     # already seen this and everything older.
                     with WithCursor(db) as cursor:
