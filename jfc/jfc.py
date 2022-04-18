@@ -69,7 +69,6 @@ def main():
     conf_dir = appdirs.user_config_dir('jfc', 'mikeevmm')
     data_dir = appdirs.user_data_dir('jfc', 'mikeevmm')
     today = datetime.datetime.today()
-    console = rich.console.Console()
     
     # Create configuration directories and files if they don't exist
     if not os.path.exists(conf_dir):
@@ -103,6 +102,13 @@ def main():
     # Read the settings
     with open(conf_path, 'r') as conf_file:
         conf = toml.load(conf_file)
+
+    # Set up the output
+    term_props = conf.get('terminal', {})
+    term_width = lambda: min(console.width,
+                             term_props.get('width', console.width))
+
+    console = rich.console.Console(highlight=conf.get('highlight', False))
     
     # Print a header, because we're cool like that
     if conf.get('show_header', True):
@@ -387,16 +393,17 @@ def main():
                 console.rule()
                 console.print('')
                 for line in textwrap.wrap(
-                    article['title'], width=console.width):
+                    article['title'], width=term_width()):
                     console.print(line, justify='center', soft_wrap=True)
                 for line in textwrap.wrap(
-                    article['authors'], width=console.width):
+                    article['authors'], width=term_width()):
                     console.print(line, justify='center', style='dim')
                 console.print(article['link'], justify='center', style='dim')
                 if crosslists_highlight and article['crosslist']:
-                    console.print(
+                    for line in textwrap.wrap(
                         f'({article["category"]} cross-listing)',
-                        justify='center', style='bold')
+                        width=term_width()):
+                            console.print(line, justify='center', style='bold')
                 console.print('')
                     
                 action = rich.prompt.Prompt.ask(
@@ -419,21 +426,25 @@ def main():
                 with console.screen():
                     console.print('\n')
                     for line in textwrap.wrap(
-                        article['title'], width=console.width):
+                        article['title'], width=term_width()):
                         console.print(line, justify='center', soft_wrap=True)
                     for line in textwrap.wrap(
-                        article['authors'], width=console.width):
+                        article['authors'], width=term_width()):
                         console.print(line, justify='center', style='dim')
                     console.print(
                         article['link'], justify='center', style='dim')
                     if crosslists_highlight and article['crosslist']:
-                        console.print(
+                        for line in textwrap.wrap(
                             f'({article["category"]} cross-listing)',
-                            justify='center', style='bold')
+                            width=term_width()):
+                                console.print(
+                                    line, justify='center', style='bold')
                     console.print('\n')
+                    left_padding = (
+                        max(console.width - term_width(), 0)//2 - 1)
                     for line in textwrap.wrap(
-                        article['abstract'], width=console.width):
-                        console.print(line, soft_wrap=True)
+                        article['abstract'], width=term_width()):
+                            console.print(' ' * left_padding, line)
                     console.print('')
 
                     action = rich.prompt.Prompt.ask(

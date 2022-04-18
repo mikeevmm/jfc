@@ -91,6 +91,8 @@ mv "$(jfc config).old" "$(jfc config)"
    + `q-bio`
    + `q-fin`
    + `stat`
+ * `[terminal]` Options relating to the terminal look.
+   + `width` the maximum width at which to wrap the text [Default: terminal width]
 
 ## Debugging
 
