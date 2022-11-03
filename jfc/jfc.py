@@ -85,7 +85,10 @@ def main():
                 and os.path.exists(conf_path)):
             os.rename(conf_path, os.path.join(conf_dir, 'settings.toml.old'))
         if (arguments['db'] or arguments['all']) and os.path.exists(db_path):
-            os.rename(db_path, os.path.join(data_dir, 'articles.db.old'))
+            db_backup_path = os.path.join(data_dir, 'articles.db.old')
+            if os.path.exists(db_backup_path):
+                os.remove(db_backup_path)
+            os.rename(db_path, db_backup_path)
         exit(0)
 
     first_time = False
