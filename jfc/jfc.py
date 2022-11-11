@@ -62,6 +62,21 @@ CATEGORY_KEYS = [
     'stat',
 ]
 
+MONTHS = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Ago',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+]
+
 
 def main():
     arguments = docopt.docopt(__doc__, version=version.__version__)
@@ -375,6 +390,9 @@ def main():
         if conf.get('shuffle', True):
             random.shuffle(articles)
 
+        # As of 1.7.0, the date of the publication can optionally be shown
+        show_date = conf.get('show_date', True)
+
         # Show the articles
 
         try:
@@ -395,8 +413,16 @@ def main():
                             'UPDATE articles SET read=1 WHERE link=?',
                             (article['link'],))
 
+
                 # Show the article
                 console.rule()
+                if show_date:
+                    # Move up one line up and one cell right
+                    cursor_move = '\033[F\033[C'
+                    date = (f' {article["year"]}-' +
+                           f'{MONTHS[article["month"]]}-' +
+                           f'{article["day"]} ')
+                    console.print(cursor_move + date, style='dim')
                 console.print('')
                 for line in textwrap.wrap(
                     article['title'], width=term_width()):

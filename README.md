@@ -61,6 +61,7 @@ mv "$(jfc config).old" "$(jfc config)"
  * `span` The timeframe of publication dates to aggregate, in days, and
     counting backwards from today. [Default: `7`]
  * `show_header` Whether to be boring (`false`) or not (`true`) [Default: `true`]
+ * `show_date` Whether to show the publication date of each entry [Default: `true`]
  * `browser_from_title` Whether to have the option to open the article in the
     browser immediately from the title [Default: `false`]
  * `shuffle` Whether to present the unread papers in a shuffled order (`true`),
