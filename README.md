@@ -59,15 +59,15 @@ mv "$(jfc config).old" "$(jfc config)"
 ### Parameters
 
  * `span` The timeframe of publication dates to aggregate, in days, and
-    counting backwards from today. [Default: 7]
- * `show_header` Whether to be boring (`false`) or not (`true`) [Default: true]
+    counting backwards from today. [Default: `7`]
+ * `show_header` Whether to be boring (`false`) or not (`true`) [Default: `true`]
  * `browser_from_title` Whether to have the option to open the article in the
-    browser immediately from the title [Default: False]
+    browser immediately from the title [Default: `false`]
  * `shuffle` Whether to present the unread papers in a shuffled order (`true`),
-    or in the order that they were indexed (`false`) [Default: True]
+    or in the order that they were indexed (`false`) [Default: `true`]
  * `[crosslists]` Options relating to cross-lists.
-   + `highlight` Indicate if a given entry is a cross-list [Default: False]
-   + `include` Include cross-listed publications [Default: True]
+   + `highlight` Indicate if a given entry is a cross-list [Default: `false`]
+   + `include` Include cross-listed publications [Default: `true`]
  * `[categories]` Set each item below it to `true` to include it in the ArXiv
     search. Every element defaults to `false`, except `quant-ph`, which defaults
     to `true`.
@@ -92,7 +92,7 @@ mv "$(jfc config).old" "$(jfc config)"
    + `q-fin`
    + `stat`
  * `[terminal]` Options relating to the terminal look.
-   + `width` the maximum width at which to wrap the text [Default: terminal width]
+   + `width` the maximum width at which to wrap the text [Default: (terminal width)]
 
 ## Debugging
 

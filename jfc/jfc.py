@@ -221,12 +221,15 @@ def main():
             # cached items are still usable.
             try:
                 query = arxiv.query(categories, page_size=page_size)
-            except ConnectionError:
+            except ConnectionError as e:
                 # ArXiv is likely down. Report to the user, but keep going.
                 spinner.fail(
                     'Something went wrong on the ArXiv end of things. '
                     '(ArXiv is likely down.) '
                     'Please try again later.')
+                if os.environ.get('JFC_DEBUG'):
+                    print('Guru meditation:')
+                    print(e)
                 query = []
 
             for i, results_page in enumerate(query):
@@ -340,10 +343,10 @@ def main():
             with WithCursor(db) as cursor:
                 db.execute('UPDATE articles SET crosslist = 0 '
                            'WHERE category IN '
-                           '(' + ', '.join(f'"{x}"' for x in categories) + ')')
+                           '(' + ', '.join(str(x) for x in categories) + ')')
                 db.execute('UPDATE articles SET crosslist = 1 '
                            'WHERE category NOT IN '
-                           '(' + ', '.join(f'"{x}"' for x in categories) + ')')
+                           '(' + ', '.join(str(x) for x in categories) + ')')
     
     with sqlite3.connect(db_path) as db:
         # Get all the articles that haven't been read yet
@@ -369,7 +372,7 @@ def main():
             for element in query]
 
         # As of 1.4.0, shuffling is optional and controlled by preferences.
-        if conf.get('shuffle', 'True'):
+        if conf.get('shuffle', True):
             random.shuffle(articles)
 
         # Show the articles
@@ -397,7 +400,7 @@ def main():
                 console.print('')
                 for line in textwrap.wrap(
                     article['title'], width=term_width()):
-                    console.print(line, justify='center', soft_wrap=True)
+                    console.print(line, justify='center')
                 for line in textwrap.wrap(
                     article['authors'], width=term_width()):
                     console.print(line, justify='center', style='dim')
