@@ -358,10 +358,10 @@ def main():
             with WithCursor(db) as cursor:
                 db.execute('UPDATE articles SET crosslist = 0 '
                            'WHERE category IN '
-                           '(' + ', '.join(str(x) for x in categories) + ')')
+                           '(' + ', '.join(f'"{x}"' for x in categories) + ')')
                 db.execute('UPDATE articles SET crosslist = 1 '
                            'WHERE category NOT IN '
-                           '(' + ', '.join(str(x) for x in categories) + ')')
+                           '(' + ', '.join(f'"{x}"' for x in categories) + ')')
     
     with sqlite3.connect(db_path) as db:
         # Get all the articles that haven't been read yet
