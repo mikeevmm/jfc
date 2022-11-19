@@ -420,7 +420,7 @@ def main():
                     # Move up one line up and one cell right
                     cursor_move = '\033[F\033[C'
                     date = (f' {article["year"]}-' +
-                           f'{MONTHS[article["month"]]}-' +
+                           f'{MONTHS[article["month"] - 1]}-' +
                            f'{article["day"]} ')
                     console.print(cursor_move + date, style='dim')
                 console.print('')
