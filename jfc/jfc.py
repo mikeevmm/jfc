@@ -230,7 +230,10 @@ def main():
                 'Recompiling LaTeX...',
                 'Calling the arXiv API... (no, really)',
                 'Wow, this is taking a while?',
-                'Reading the abstract only...']
+                'Reading the abstract only...',
+                'Proposing collaboration...',
+                'Envying results...',
+                'Searching for the published version...']
 
             # Connection errors are caught, because even if ArXiv is down, the
             # cached items are still usable.
