@@ -477,9 +477,11 @@ def main():
                     console.print('\n')
                     left_padding = (
                         max(console.width - term_width(), 0)//2 - 1)
-                    for line in textwrap.wrap(
-                        article['abstract'], width=term_width()):
-                            console.print(' ' * left_padding, line)
+                    abstract_width = term_width() - left_padding
+                    wrapped_abstract = textwrap.wrap(article['abstract'],
+                                                     width=abstract_width)
+                    for line in wrapped_abstract:
+                            console.print(' ' * left_padding, line, sep='')
                     console.print('')
 
                     action = rich.prompt.Prompt.ask(
